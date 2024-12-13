@@ -1,7 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:shikshalaya/common/common_snackbar.dart';
 
-class LoginView extends StatelessWidget {
+class LoginView extends StatefulWidget {
   const LoginView({super.key});
+
+  @override
+  State<LoginView> createState() => _LoginViewState();
+}
+
+class _LoginViewState extends State<LoginView> {
+  final TextEditingController _emailController = TextEditingController();
+
+  final TextEditingController _passwordController = TextEditingController();
+
+  void _login(BuildContext context) {
+    final String email = _emailController.text.trim();
+    final String password = _passwordController.text.trim();
+
+    if (email == 'ashok@gmail.com' && password == '12345678') {
+      // Navigate to the dashboard
+      Navigator.pushReplacementNamed(context, '/dashboard');
+    } else {
+      // Show error message
+      CommonSnackbar.show(
+        context,
+        message: 'Invalid email or password!',
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +61,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
                 TextField(
+                  controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
                     prefixIcon: const Icon(Icons.email),
@@ -43,6 +72,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 TextField(
+                  controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Password',
@@ -65,7 +95,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () => _login(context),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 50, vertical: 15),
