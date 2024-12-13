@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shikshalaya/common/common_snackbar.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -38,21 +39,32 @@ class _RegisterViewState extends State<RegisterView> {
         email.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
-      print('All fields are required!');
+      CommonSnackbar.show(
+        context,
+        message: 'All fields are required!',
+        backgroundColor: Colors.red, // Error color
+        textColor: Colors.white,
+      );
       return;
     }
 
     if (password != confirmPassword) {
-      print('Passwords do not match!');
+      CommonSnackbar.show(
+        context,
+        message: 'Passwords do not match!',
+        backgroundColor: Colors.red, // Error color
+        textColor: Colors.white,
+      );
       return;
     }
 
-    // Print the data to terminal
-    print('Full Name: $fullName');
-    print('Phone Number: $phone');
-    print('Email: $email');
-    print('Password: $password');
     // Proceed with registration logic (e.g., API call)
+    CommonSnackbar.show(
+      context,
+      message: 'Registration successful!',
+      backgroundColor: Colors.green, // Success color
+      textColor: Colors.white,
+    );
   }
 
   @override
