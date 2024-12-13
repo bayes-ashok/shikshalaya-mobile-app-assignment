@@ -184,7 +184,7 @@ class _RegisterViewState extends State<RegisterView> {
                     const Text("Already have an account? "),
                     GestureDetector(
                       onTap: () {
-                        // Navigate to Login page
+                        Navigator.pushReplacementNamed(context, '/login');
                       },
                       child: const Text(
                         'Login',

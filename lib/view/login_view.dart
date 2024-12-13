@@ -18,7 +18,6 @@ class _LoginViewState extends State<LoginView> {
     final String password = _passwordController.text.trim();
 
     if (email == 'ashok@gmail.com' && password == '12345678') {
-      // Navigate to the dashboard
       Navigator.pushReplacementNamed(context, '/dashboard');
     } else {
       // Show error message
@@ -114,7 +113,9 @@ class _LoginViewState extends State<LoginView> {
                   children: [
                     const Text("Don't have an account? "),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/register');
+                      },
                       child: const Text(
                         'Sign Up',
                         style: TextStyle(
