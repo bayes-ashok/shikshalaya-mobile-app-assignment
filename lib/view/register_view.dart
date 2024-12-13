@@ -58,13 +58,21 @@ class _RegisterViewState extends State<RegisterView> {
       return;
     }
 
-    // Proceed with registration logic (e.g., API call)
+    // Show success with entered data
     CommonSnackbar.show(
       context,
-      message: 'Registration successful!',
+      message:
+          'Registration successful!\nName: $fullName\nPhone: $phone\nEmail: $email',
       backgroundColor: Colors.green, // Success color
       textColor: Colors.white,
     );
+
+    // Clear the fields
+    _fullNameController.clear();
+    _phoneController.clear();
+    _emailController.clear();
+    _passwordController.clear();
+    _confirmPasswordController.clear();
   }
 
   @override
@@ -89,7 +97,7 @@ class _RegisterViewState extends State<RegisterView> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Register to get started',
+                  'Register to get started with Sikshyalaya',
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[600],
