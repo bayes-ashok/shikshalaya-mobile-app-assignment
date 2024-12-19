@@ -61,8 +61,7 @@ class _RegisterViewState extends State<RegisterView> {
     // Show success with entered data
     CommonSnackbar.show(
       context,
-      message:
-          'Registration successful!\nName: $fullName\nPhone: $phone\nEmail: $email',
+      message: 'Registration successful',
       backgroundColor: Colors.green, // Success color
       textColor: Colors.white,
     );

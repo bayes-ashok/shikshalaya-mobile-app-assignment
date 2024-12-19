@@ -7,15 +7,23 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Welcome, ASHOK',
-          style: TextStyle(color: Colors.black),
+        backgroundColor: Colors.deepPurple,
+        elevation: 3,
+        title: const Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: AssetImage('assets/images/icon.png'),
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Welcome, ASHOK',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+          ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, color: Colors.black),
+            icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {},
           ),
         ],
