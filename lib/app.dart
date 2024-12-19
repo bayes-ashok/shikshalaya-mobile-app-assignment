@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shikshalaya/common/bottom_nav.dart';
 import 'package:shikshalaya/view/home_page.dart';
 import 'package:shikshalaya/view/login_view.dart';
 // import 'package:shikshalaya/view/onboarding_screen.dart';
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       debugShowCheckedModeBanner: false,
       routes: {
-        '/': (context) => const HomePage(),
+        '/': (context) => const BottomNav(),
         '/register': (context) => const RegisterView(),
         '/login': (context) => const LoginView(),
         '/dashboard': (context) => const HomePage(),

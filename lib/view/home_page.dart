@@ -6,105 +6,87 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        elevation: 3,
-        title: const Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: AssetImage('assets/images/icon.png'),
-            ),
-            SizedBox(width: 10),
-            Text(
-              'Welcome, ASHOK',
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
-      ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Search Bar
-              TextField(
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: 'Search Here',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
+        child: Container(
+          color: const Color.fromARGB(255, 248, 246, 246),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Search Bar
+                TextField(
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: 'Search Here',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide:
+                          const BorderSide(color: Colors.deepPurpleAccent),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 15, horizontal: 20),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              // Filter Chips
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  FilterChip(label: const Text('Loksewa'), onSelected: (_) {}),
-                  FilterChip(
-                      label: const Text('Bridge Course'), onSelected: (_) {}),
-                  FilterChip(label: const Text('CEE'), onSelected: (_) {}),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Continue Watching Section
-              const Text(
-                'Explore Courses',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              GridView.builder(
-                physics:
-                    const NeverScrollableScrollPhysics(), // Prevent GridView from scrolling
-                shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // Two cards per row
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 3 / 4, // Adjust height/width ratio of cards
+                const SizedBox(height: 16),
+                // Filter Chips
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    FilterChip(
+                      label: const Text('Loksewa'),
+                      onSelected: (_) {},
+                      backgroundColor: Colors.deepPurple.shade50,
+                      selectedColor: Colors.deepPurpleAccent,
+                      selected: false,
+                    ),
+                    FilterChip(
+                      label: const Text('Bridge Course'),
+                      onSelected: (_) {},
+                      backgroundColor: Colors.deepPurple.shade50,
+                      selectedColor: Colors.deepPurpleAccent,
+                      selected: false,
+                    ),
+                    FilterChip(
+                      label: const Text('CEE'),
+                      onSelected: (_) {},
+                      backgroundColor: Colors.deepPurple.shade50,
+                      selectedColor: Colors.deepPurpleAccent,
+                      selected: false,
+                    ),
+                  ],
                 ),
-                itemCount: cardData.length, // Number of cards
-                itemBuilder: (context, index) {
-                  return buildCourseCard(
-                    title: cardData[index]['title']!,
-                    subtitle: cardData[index]['subtitle']!,
-                    imagePath: cardData[index]['imagePath']!,
-                  );
-                },
-              ),
-            ],
+                const SizedBox(height: 16),
+                // Explore Courses Section
+                const Text(
+                  'Explore Courses',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 3 / 4,
+                  ),
+                  itemCount: cardData.length,
+                  itemBuilder: (context, index) {
+                    return buildCourseCard(
+                      title: cardData[index]['title']!,
+                      subtitle: cardData[index]['subtitle']!,
+                      imagePath: cardData[index]['imagePath']!,
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.library_books),
-            label: 'Tests',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.newspaper_outlined),
-            label: 'News',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
       ),
     );
   }
@@ -116,6 +98,8 @@ class HomePage extends StatelessWidget {
   }) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -125,11 +109,21 @@ class HomePage extends StatelessWidget {
               topLeft: Radius.circular(12),
               topRight: Radius.circular(12),
             ),
-            child: Image.asset(
-              imagePath,
-              height: 130,
-              width: double.infinity,
-              fit: BoxFit.cover,
+            child: Stack(
+              children: [
+                Image.asset(
+                  imagePath,
+                  height: 130,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+                Container(
+                  height: 130,
+                  width: double.infinity,
+                  color: Colors.black
+                      .withOpacity(0.4), // Add dark overlay for readability
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 6),
@@ -138,7 +132,11 @@ class HomePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 6.0),
             child: Text(
               title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: Colors.black,
+              ),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
