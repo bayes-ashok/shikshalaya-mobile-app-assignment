@@ -36,21 +36,36 @@ class HomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     FilterChip(
-                      label: const Text('Loksewa'),
+                      label: const Text(
+                        'Loksewa',
+                        style: TextStyle(
+                          fontFamily: 'Roboto Bold',
+                        ),
+                      ),
                       onSelected: (_) {},
                       backgroundColor: Colors.deepPurple.shade50,
                       selectedColor: Colors.deepPurpleAccent,
                       selected: false,
                     ),
                     FilterChip(
-                      label: const Text('Bridge Course'),
+                      label: const Text(
+                        'Bridge Course',
+                        style: TextStyle(
+                          fontFamily: 'Roboto Bold',
+                        ),
+                      ),
                       onSelected: (_) {},
                       backgroundColor: Colors.deepPurple.shade50,
                       selectedColor: Colors.deepPurpleAccent,
                       selected: false,
                     ),
                     FilterChip(
-                      label: const Text('CEE'),
+                      label: const Text(
+                        'CEE',
+                        style: TextStyle(
+                          fontFamily: 'Roboto Bold',
+                        ),
+                      ),
                       onSelected: (_) {},
                       backgroundColor: Colors.deepPurple.shade50,
                       selectedColor: Colors.deepPurpleAccent,
@@ -68,11 +83,17 @@ class HomePage extends StatelessWidget {
                 GridView.builder(
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: MediaQuery.of(context).orientation ==
+                            Orientation.portrait
+                        ? 2
+                        : 3,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
-                    childAspectRatio: 3 / 4,
+                    childAspectRatio: MediaQuery.of(context).orientation ==
+                            Orientation.portrait
+                        ? 3 / 4
+                        : 20 / 17,
                   ),
                   itemCount: cardData.length,
                   itemBuilder: (context, index) {
