@@ -97,7 +97,10 @@ class HomePage extends StatelessWidget {
     required String imagePath,
   }) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(
+              color: Color.fromARGB(255, 88, 72, 72), width: 1)),
       elevation: 4,
       shadowColor: Colors.black.withOpacity(0.2),
       child: Column(
@@ -133,7 +136,7 @@ class HomePage extends StatelessWidget {
             child: Text(
               title,
               style: const TextStyle(
-                fontWeight: FontWeight.bold,
+                fontFamily: 'OpenSans Bold',
                 fontSize: 14,
                 color: Colors.black,
               ),
@@ -148,7 +151,11 @@ class HomePage extends StatelessWidget {
             child: Text(
               subtitle,
               maxLines: 1,
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
+              style: const TextStyle(
+                color: Colors.grey,
+                fontFamily: 'OpenSans Medium',
+                fontSize: 12,
+              ),
             ),
           ),
         ],
@@ -169,7 +176,7 @@ final List<Map<String, String>> cardData = [
     'imagePath': 'assets/images/ioe.png',
   },
   {
-    'title': 'Section Officer – Written Paper | लेखा परीक्षा',
+    'title': 'Section Officer – Written Paper',
     'subtitle': 'By Edusoft Academy',
     'imagePath': 'assets/images/section_officer.jpg',
   },

@@ -34,7 +34,11 @@ class _BottomNavState extends State<BottomNav> {
             SizedBox(width: 10),
             Text(
               'Welcome, ASHOK',
-              style: TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'OpenSans SemiBold',
+                fontSize: 18,
+              ),
             ),
           ],
         ),
