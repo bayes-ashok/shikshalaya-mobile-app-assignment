@@ -65,6 +65,7 @@ class _LoginViewState extends State<LoginView> {
                       labelStyle: const TextStyle(color: Colors.black),
                       prefixIcon: const Icon(Icons.email, color: Colors.black),
                       filled: true,
+                      // ignore: deprecated_member_use
                       fillColor: Colors.white.withOpacity(0.8),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -83,6 +84,7 @@ class _LoginViewState extends State<LoginView> {
                       labelStyle: const TextStyle(color: Colors.black),
                       prefixIcon: const Icon(Icons.lock, color: Colors.black),
                       filled: true,
+                      // ignore: deprecated_member_use
                       fillColor: Colors.white.withOpacity(0.8),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
