@@ -1,24 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shikshalaya/view/home_page.dart';
-import 'package:shikshalaya/view/news_screen.dart';
-import 'package:shikshalaya/view/profile_screen.dart';
-import 'package:shikshalaya/view/test_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shikshalaya/cubit/dashboard_cubit.dart';
 
-class BottomNav extends StatefulWidget {
+class BottomNav extends StatelessWidget {
   const BottomNav({super.key});
-
-  @override
-  State<BottomNav> createState() => _BottomNavState();
-}
-
-class _BottomNavState extends State<BottomNav> {
-  int _selectedIndex = 0;
-  List<Widget> lstBottomScreen = [
-    const HomePage(),
-    const TestScreen(),
-    const NewsScreen(),
-    const ProfileScreen()
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -49,66 +34,59 @@ class _BottomNavState extends State<BottomNav> {
           ),
         ],
       ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: lstBottomScreen[_selectedIndex],
+      body: BlocBuilder<DashboardCubit, int>(
+        builder: (context, state) {
+          final cubit = context.read<DashboardCubit>();
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: cubit.getScreen(state),
+          );
+        },
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.shade300,
-              blurRadius: 1,
-              offset: const Offset(0, -1.5),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedItemColor: Colors.blue,
-          unselectedItemColor: Colors.grey,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-          unselectedLabelStyle: const TextStyle(fontSize: 12),
-          currentIndex: _selectedIndex,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(
-                _selectedIndex == 0 ? Icons.home : Icons.home_outlined,
+      bottomNavigationBar: BlocBuilder<DashboardCubit, int>(
+        builder: (context, state) {
+          return BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            selectedItemColor: Colors.blue,
+            unselectedItemColor: Colors.grey,
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+            unselectedLabelStyle: const TextStyle(fontSize: 12),
+            currentIndex: state,
+            onTap: (index) {
+              context.read<DashboardCubit>().navigateTo(index);
+            },
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(
+                  state == 0 ? Icons.home : Icons.home_outlined,
+                ),
+                label: 'Home',
               ),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                _selectedIndex == 1
-                    ? Icons.library_books
-                    : Icons.library_books_outlined,
+              BottomNavigationBarItem(
+                icon: Icon(
+                  state == 1
+                      ? Icons.library_books
+                      : Icons.library_books_outlined,
+                ),
+                label: 'Tests',
               ),
-              label: 'Tests',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                _selectedIndex == 2
-                    ? Icons.newspaper
-                    : Icons.newspaper_outlined,
+              BottomNavigationBarItem(
+                icon: Icon(
+                  state == 2 ? Icons.newspaper : Icons.newspaper_outlined,
+                ),
+                label: 'News',
               ),
-              label: 'News',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                _selectedIndex == 3 ? Icons.person : Icons.person_outline,
+              BottomNavigationBarItem(
+                icon: Icon(
+                  state == 3 ? Icons.person : Icons.person_outline,
+                ),
+                label: 'Profile',
               ),
-              label: 'Profile',
-            ),
-          ],
-        ),
+            ],
+          );
+        },
       ),
     );
   }

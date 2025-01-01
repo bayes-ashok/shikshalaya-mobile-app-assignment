@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/common/bottom_nav.dart';
+import 'package:shikshalaya/cubit/dashboard_cubit.dart';
+import 'package:shikshalaya/service%20locator/service_locator.dart';
 import 'package:shikshalaya/theme/theme_data.dart';
-// import 'package:shikshalaya/view/home_page.dart';
-import 'package:shikshalaya/view/login_view.dart';
-import 'package:shikshalaya/view/onboarding_screen.dart';
-// import 'package:shikshalaya/view/onboarding_screen.dart';
-import 'package:shikshalaya/view/register_view.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,12 +14,10 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       debugShowCheckedModeBanner: false,
       theme: getTheme(),
-      routes: {
-        '/': (context) => const OnboardingScreen(),
-        '/register': (context) => const RegisterView(),
-        '/login': (context) => const LoginView(),
-        '/dashboard': (context) => const BottomNav(),
-      },
+      home: BlocProvider.value(
+        value: serviceLocator<DashboardCubit>(),
+        child: BottomNav(),
+      ),
     );
   }
 }

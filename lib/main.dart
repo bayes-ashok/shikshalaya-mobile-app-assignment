@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shikshalaya/app.dart';
+import 'package:shikshalaya/service%20locator/service_locator.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initDependencies();
   runApp(
-    const MyApp(),
+    MyApp(),
   );
 }
