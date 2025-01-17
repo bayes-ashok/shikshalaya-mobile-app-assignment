@@ -5,9 +5,9 @@ import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cub
 import 'package:shikshalaya/features/test/presentation/view/test_screen.dart';
 import 'package:shikshalaya/features/test/presentation/view_model/bloc/test_bloc.dart';
 
-import '../app/di/di.dart';
-import '../features/auth/presentation/view/login_view.dart';
-import '../features/auth/presentation/view_model/login/login_bloc.dart';
+import '../../app/di/di.dart';
+import '../../features/auth/presentation/view/login_view.dart';
+import '../../features/auth/presentation/view_model/login/login_bloc.dart';
 
 class BottomNav extends StatefulWidget {
   const BottomNav({super.key});

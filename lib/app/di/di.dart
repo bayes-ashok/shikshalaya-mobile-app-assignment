@@ -7,6 +7,7 @@ import 'package:shikshalaya/features/auth/domain/use_case/register_user_usecase.
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/signup/register_bloc.dart';
 import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
+import 'package:shikshalaya/features/test/presentation/view_model/bloc/test_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -17,6 +18,7 @@ Future<void> initDependencies() async {
   await _initHomeDependencies();
   await _initRegisterDependencies();
   await _initLoginDependencies();
+  await _initTestDependencies();
 
   // await _initSplashScreenDependencies();
 }
@@ -69,6 +71,12 @@ _initLoginDependencies() async {
       homeCubit: getIt<HomeCubit>(),
       loginUseCase: getIt<LoginUseCase>(),
     ),
+  );
+}
+
+_initTestDependencies() async{
+  getIt.registerFactory<TestBloc>(
+        () => TestBloc(),
   );
 }
 
