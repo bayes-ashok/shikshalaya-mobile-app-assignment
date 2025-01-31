@@ -4,7 +4,6 @@ import 'package:shikshalaya/core/network/api_service.dart';
 import 'package:shikshalaya/core/network/hive_service.dart';
 // import 'package:shikshalaya/features/auth/data/data_source/local_data_source/auth_local_data_source.dart';
 import 'package:shikshalaya/features/auth/data/data_source/remote_data_source/auth_remote_data_source.dart';
-import 'package:shikshalaya/features/auth/data/repository/auth_local_repository.dart';
 import 'package:shikshalaya/features/auth/data/repository/auth_remote_repository.dart';
 import 'package:shikshalaya/features/auth/domain/use_case/login_usecase.dart';
 import 'package:shikshalaya/features/auth/domain/use_case/register_user_usecase.dart';
@@ -34,7 +33,7 @@ _initHiveService() {
 _initApiService() {
   // Remote Data Source
   getIt.registerLazySingleton<Dio>(
-        () => ApiService(Dio()).dio,
+    () => ApiService(Dio()).dio,
   );
 }
 
@@ -69,9 +68,14 @@ _initRegisterDependencies() {
     ),
   );
 
+  getIt.registerLazySingleton<UploadImageUsecase>(() => UploadImageUsecase(
+        getIt<AuthRemoteRepository>(),
+      ));
+
   getIt.registerFactory<RegisterBloc>(
     () => RegisterBloc(
       registerUseCase: getIt(),
+      uploadImagecase: getIt(),
     ),
   );
 }
