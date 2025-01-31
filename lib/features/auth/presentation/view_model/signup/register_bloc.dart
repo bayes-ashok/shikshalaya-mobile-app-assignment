@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -14,15 +16,36 @@ part 'register_state.dart';
 
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final RegisterUseCase _registerUseCase;
+  final UploadImageUsecase _uploadImageUsecase;
 
   RegisterBloc({
     required RegisterUseCase registerUseCase,
+    required UploadImageUsecase uploadImagecase,
   })  : _registerUseCase = registerUseCase,
+        _uploadImageUsecase = uploadImagecase,
         super(RegisterState.initial()) {
     on<RegisterStudent>(_onRegisterEvent);
-
+    on<LoadImage>(_onLoadImage);
   }
 
+  void _onLoadImage(
+    LoadImage event,
+    Emitter<RegisterState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    final result = await _uploadImageUsecase.call(
+      UploadImageParams(
+        file: event.file,
+      ),
+    );
+
+    result.fold(
+      (l) => emit(state.copyWith(isLoading: false, isSuccess: false)),
+      (r) {
+        emit(state.copyWith(isLoading: false, isSuccess: true, imageName: r));
+      },
+    );
+  }
 
   void _onRegisterEvent(
     RegisterStudent event,
@@ -37,8 +60,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     ));
 
     result.fold(
-          (l) => emit(state.copyWith(isLoading: false, isSuccess: false)),
-          (r) {
+      (l) => emit(state.copyWith(isLoading: false, isSuccess: false)),
+      (r) {
         emit(state.copyWith(isLoading: false, isSuccess: true));
         showMySnackBar(
           context: event.context,
@@ -57,6 +80,5 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         );
       },
     );
-
   }
 }
