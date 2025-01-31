@@ -262,6 +262,9 @@ class _RegisterViewState extends State<RegisterView> {
                       child: ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
+                            final registerState =
+                                context.read<RegisterBloc>().state;
+                            final imageName = registerState.imageName;
                             context.read<RegisterBloc>().add(
                                   RegisterStudent(
                                     context: context,
@@ -269,6 +272,7 @@ class _RegisterViewState extends State<RegisterView> {
                                     phone: _phoneNumberController.text,
                                     email: _emailController.text,
                                     password: _passwordController.text,
+                                    image: imageName,
                                   ),
                                 );
                           }

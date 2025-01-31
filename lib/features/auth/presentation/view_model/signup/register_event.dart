@@ -13,6 +13,7 @@ class RegisterStudent extends RegisterEvent {
   final String phone;
   final String email;
   final String password;
+  final String? image;
 
   const RegisterStudent({
     required this.context,
@@ -20,6 +21,7 @@ class RegisterStudent extends RegisterEvent {
     required this.phone,
     required this.email,
     required this.password,
+    this.image,
   });
 }
 

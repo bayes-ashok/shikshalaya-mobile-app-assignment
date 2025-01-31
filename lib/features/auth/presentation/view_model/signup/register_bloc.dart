@@ -57,6 +57,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       phone: event.phone,
       email: event.email,
       password: event.password,
+      image: state.imageName,
     ));
 
     result.fold(
@@ -73,7 +74,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           event.context,
           MaterialPageRoute(
             builder: (context) => BlocProvider.value(
-              value: getIt<LoginBloc>(), // Provide the LoginBloc instance here
+              value: getIt<LoginBloc>(),
               child: LoginView(),
             ),
           ),
