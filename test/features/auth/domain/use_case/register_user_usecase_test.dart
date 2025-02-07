@@ -22,47 +22,53 @@ void main() {
     usecase = RegisterUseCase(repository);
   });
 
-  test('should register user and return void on success', () async {
-    // Arrange
-    when(() => repository.registerStudent(any())).thenAnswer(
-      (_) async => const Right(null),
-    );
+  group('Register User UseCase Tests', () {
+    group('Successful registration', () {
+      test('should register user and return void on success', () async {
+        // Arrange
+        when(() => repository.registerStudent(any())).thenAnswer(
+          (_) async => const Right(null),
+        );
 
-    // Act
-    final result = await usecase(const RegisterUserParams(
-      fname: 'Ashok',
-      phone: '1234567890',
-      email: 'ashok@gmail.com',
-      password: 'qwerty123',
-    ));
+        // Act
+        final result = await usecase(const RegisterUserParams(
+          fname: 'Ashok',
+          phone: '1234567890',
+          email: 'ashok@gmail.com',
+          password: 'qwerty123',
+        ));
 
-    // Assert
-    expect(result, const Right(null));
+        // Assert
+        expect(result, const Right(null));
 
-    // Verify
-    verify(() => repository.registerStudent(any())).called(1);
-    verifyNoMoreInteractions(repository);
-  });
+        // Verify
+        verify(() => repository.registerStudent(any())).called(1);
+        verifyNoMoreInteractions(repository);
+      });
+    });
 
-  test('should return [Failure] when repository fails', () async {
-    // Arrange
-    when(() => repository.registerStudent(any())).thenAnswer(
-      (_) async => const Left(ApiFailure(message: "user already esists")),
-    );
+    group('Failed registration', () {
+      test('should return [Failure] when repository fails', () async {
+        // Arrange
+        when(() => repository.registerStudent(any())).thenAnswer(
+          (_) async => const Left(ApiFailure(message: "user already exists")),
+        );
 
-    // Act
-    final result = await usecase(const RegisterUserParams(
-      fname: 'Ashok',
-      phone: '1234567890',
-      email: 'ashok@gmail.com',
-      password: 'qwerty123',
-    ));
+        // Act
+        final result = await usecase(const RegisterUserParams(
+          fname: 'Ashok',
+          phone: '1234567890',
+          email: 'ashok@gmail.com',
+          password: 'qwerty123',
+        ));
 
-    // Assert
-    expect(result, isA<Left<Failure, void>>());
+        // Assert
+        expect(result, isA<Left<Failure, void>>());
 
-    // Verify
-    verify(() => repository.registerStudent(any())).called(1);
-    verifyNoMoreInteractions(repository);
+        // Verify
+        verify(() => repository.registerStudent(any())).called(1);
+        verifyNoMoreInteractions(repository);
+      });
+    });
   });
 }
