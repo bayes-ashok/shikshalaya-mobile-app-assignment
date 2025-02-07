@@ -1,130 +1,9 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:shikshalaya/features/auth/presentation/view/register_view.dart';
-// import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
-//
-// class LoginView extends StatelessWidget {
-//   LoginView({super.key});
-//
-//   final _formKey = GlobalKey<FormState>();
-//   final _emailController = TextEditingController(text: 'kiran');
-//   final _passwordController = TextEditingController(text: 'kiran123');
-//
-//   final _gap = const SizedBox(height: 8);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: SafeArea(
-//         child: Form(
-//           key: _formKey,
-//           child: Center(
-//             child: SingleChildScrollView(
-//               child: Padding(
-//                 padding: const EdgeInsets.all(8),
-//                 child: Column(
-//                   children: [
-//                     const Text(
-//                       'Login',
-//                       style: TextStyle(
-//                         fontSize: 30,
-//                         fontFamily: 'Brand Bold',
-//                       ),
-//                     ),
-//                     _gap,
-//                     TextFormField(
-//                       key: const ValueKey('email'),
-//                       controller: _emailController,
-//                       decoration: const InputDecoration(
-//                         border: OutlineInputBorder(),
-//                         labelText: 'email',
-//                       ),
-//                       validator: (value) {
-//                         if (value!.isEmpty) {
-//                           return 'Please enter email';
-//                         }
-//                         return null;
-//                       },
-//                     ),
-//                     _gap,
-//                     TextFormField(
-//                       key: const ValueKey('password'),
-//                       controller: _passwordController,
-//                       obscureText: true,
-//                       decoration: InputDecoration(
-//                         labelText: 'Password',
-//                       ),
-//                       validator: ((value) {
-//                         if (value == null || value.isEmpty) {
-//                           return 'Please enter password';
-//                         }
-//                         return null;
-//                       }),
-//                     ),
-//                     _gap,
-//                     ElevatedButton(
-//                       onPressed: () async {
-//                         if (_formKey.currentState!.validate()) {
-//                           context.read<LoginBloc>().add(
-//                                 LoginStudentEvent(
-//                                   context: context,
-//                                   email: _emailController.text,
-//                                   password: _passwordController.text,
-//                                 ),
-//                               );
-//                         }
-//                       },
-//                       child: const SizedBox(
-//                         height: 50,
-//                         child: Center(
-//                           child: Text(
-//                             'Login',
-//                             style: TextStyle(
-//                               fontSize: 18,
-//                               fontFamily: 'Brand Bold',
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                     const SizedBox(height: 8),
-//                     ElevatedButton(
-//                       key: const ValueKey('registerButton'),
-//                       onPressed: () {
-//                         context.read<LoginBloc>().add(
-//                               NavigateRegisterScreenEvent(
-//                                 destination: RegisterView(),
-//                                 context: context,
-//                               ),
-//                             );
-//                       },
-//                       child: const SizedBox(
-//                         height: 50,
-//                         child: Center(
-//                           child: Text(
-//                             'Register',
-//                             style: TextStyle(
-//                               fontSize: 18,
-//                               fontFamily: 'Brand Bold',
-//                             ),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/features/auth/presentation/view/register_view.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
+
+import '../../domain/validator/login_validation.dart'; // Import validation class
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -147,7 +26,7 @@ class _LoginViewState extends State<LoginView> {
             colors: [
               Color(0xFFe1f5fe),
               Color(0xFFb3e5fc)
-            ], // Subtle purple gradient
+            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -191,7 +70,7 @@ class _LoginViewState extends State<LoginView> {
                       decoration: InputDecoration(
                         labelText: 'Email',
                         prefixIcon:
-                            const Icon(Icons.email, color: Colors.deepPurple),
+                        const Icon(Icons.email, color: Colors.deepPurple),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -201,15 +80,10 @@ class _LoginViewState extends State<LoginView> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide:
-                              const BorderSide(color: Colors.deepPurple),
+                          const BorderSide(color: Colors.deepPurple),
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        return null;
-                      },
+                      validator: (value) => Validation.validateEmail(value),
                     ),
                     const SizedBox(height: 20),
                     // Password Text Field
@@ -219,7 +93,7 @@ class _LoginViewState extends State<LoginView> {
                       decoration: InputDecoration(
                         labelText: 'Password',
                         prefixIcon:
-                            const Icon(Icons.lock, color: Colors.deepPurple),
+                        const Icon(Icons.lock, color: Colors.deepPurple),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -229,15 +103,10 @@ class _LoginViewState extends State<LoginView> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide:
-                              const BorderSide(color: Colors.deepPurple),
+                          const BorderSide(color: Colors.deepPurple),
                         ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        return null;
-                      },
+                      validator: (value) => Validation.validatePassword(value),
                     ),
                     const SizedBox(height: 10),
                     Align(
@@ -261,12 +130,12 @@ class _LoginViewState extends State<LoginView> {
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             context.read<LoginBloc>().add(
-                                  LoginStudentEvent(
-                                    context: context,
-                                    email: _emailController.text,
-                                    password: _passwordController.text,
-                                  ),
-                                );
+                              LoginStudentEvent(
+                                context: context,
+                                email: _emailController.text,
+                                password: _passwordController.text,
+                              ),
+                            );
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -301,11 +170,11 @@ class _LoginViewState extends State<LoginView> {
                         GestureDetector(
                           onTap: () {
                             context.read<LoginBloc>().add(
-                                  NavigateRegisterScreenEvent(
-                                    destination: RegisterView(),
-                                    context: context,
-                                  ),
-                                );
+                              NavigateRegisterScreenEvent(
+                                destination: RegisterView(),
+                                context: context,
+                              ),
+                            );
                           },
                           child: const Text(
                             'Sign Up',
