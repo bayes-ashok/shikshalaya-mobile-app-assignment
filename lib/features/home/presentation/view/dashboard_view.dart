@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shikshalaya/features/course/presentation/view/course_detail_page.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -112,20 +113,29 @@ class DashboardView extends StatelessWidget {
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
         childAspectRatio:
-        MediaQuery.of(context).orientation == Orientation.portrait
-            ? 3 / 4
-            : 20 / 17,
+        MediaQuery.of(context).orientation == Orientation.portrait ? 3 / 4 : 20 / 17,
       ),
       itemCount: cardData.length,
       itemBuilder: (context, index) {
-        return buildCourseCard(
-          title: cardData[index]['title']!,
-          subtitle: cardData[index]['subtitle']!,
-          imagePath: cardData[index]['imagePath']!,
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CourseDetailPage(),
+              ),
+            );
+          },
+          child: buildCourseCard(
+            title: cardData[index]['title']!,
+            subtitle: cardData[index]['subtitle']!,
+            imagePath: cardData[index]['imagePath']!,
+          ),
         );
       },
     );
   }
+
 
   Widget buildCourseCard({
     required String title,
