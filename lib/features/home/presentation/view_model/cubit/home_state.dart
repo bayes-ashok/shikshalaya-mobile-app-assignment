@@ -1,5 +1,13 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shikshalaya/features/home/presentation/view/dashboard_view.dart';
+import 'package:shikshalaya/features/home/presentation/view/home_view.dart';
+import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
+import 'package:shikshalaya/features/test/presentation/view/test_screen.dart';
+
+import '../../../../../app/di/di.dart';
+import '../../../../test/presentation/view_model/bloc/test_bloc.dart';
 
 class HomeState extends Equatable {
   final int selectedIndex;
@@ -15,16 +23,18 @@ class HomeState extends Equatable {
     return HomeState(
       selectedIndex: 0,
       views: [
-        const Center(
-          child: Text('Account'),
+        BlocProvider(
+          create: (context) => getIt<HomeCubit>(),
+          child: DashboardView(),
         ),
-        const Center(
-          child: Text('Account'),
+        BlocProvider(
+          create: (context) => getIt<TestBloc>(),
+          child: TestScreen(),
         ),
-        // BlocProvider(
-        //   create: (context) => getIt<TestBloc>(),
-        //   child: TestScreen(),
-        // ),
+        BlocProvider(
+          create: (context) => getIt<HomeCubit>(),
+          child: DashboardView(),
+        ),
         const Center(
           child: Text('Account'),
         ),
