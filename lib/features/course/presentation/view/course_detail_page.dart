@@ -1,3 +1,4 @@
+import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -9,8 +10,7 @@ class CourseDetailPage extends StatefulWidget {
 }
 
 class _CourseDetailPageState extends State<CourseDetailPage> {
-  late VideoPlayerController _controller;
-  bool isVideoInitialized = false;
+  late FlickManager flickManager;
 
   @override
   void initState() {
@@ -20,26 +20,24 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
   Future<void> _initializeVideo() async {
     // Use an online video URL
-    String videoUrl = 'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
+    String videoUrl =
+        'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
 
-    // Initialize the video player controller with the video URL
-    _controller =VideoPlayerController.networkUrl(Uri.parse(videoUrl))
-      ..initialize().then((_) {
-        if (_controller.value.isInitialized) {
-          setState(() {
-            isVideoInitialized = true;
-          });
-        } else {
-          print('Failed to initialize video.');
-        }
-      }).catchError((error) {
-        print('Error loading video: $error');
-      });
+    // Initialize the FlickManager with the video URL
+    flickManager = FlickManager(
+      videoPlayerController:
+      VideoPlayerController.networkUrl(Uri.parse(videoUrl))
+        ..initialize().then((_) {
+          setState(() {});
+        }).catchError((error) {
+          print('Error loading video: $error');
+        }),
+    );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    flickManager.dispose();
     super.dispose();
   }
 
@@ -62,22 +60,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           children: [
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: isVideoInitialized
-                  ? VideoPlayer(_controller)
-                  : Center(child: CircularProgressIndicator()),
-            ),
-            FloatingActionButton(
-              onPressed: () {
-                setState(() {
-                  _controller.value.isPlaying
-                      ? _controller.pause()
-                      : _controller.play();
-                });
-              },
-              child: Icon(
-                _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+              child: FlickVideoPlayer(
+                flickManager: flickManager, // Using flickManager here
               ),
             ),
+
             Expanded(
               child: TabBarView(
                 children: [
@@ -112,6 +99,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   }
 }
 
+
 class OverviewTab extends StatelessWidget {
   const OverviewTab({super.key});
   @override
@@ -129,7 +117,8 @@ class OverviewTab extends StatelessWidget {
           Text('By Edusoft Academy'),
           SizedBox(height: 8),
           Row(
-            children: List.generate(5, (index) => Icon(Icons.star, color: Colors.amber)),
+            children: List.generate(
+                5, (index) => Icon(Icons.star, color: Colors.amber)),
           ),
           SizedBox(height: 8),
           Text(
@@ -216,7 +205,8 @@ class ReviewsTab extends StatelessWidget {
               ),
               SizedBox(height: 4),
               Row(
-                children: List.generate(5, (i) => Icon(Icons.star, color: Colors.amber, size: 16)),
+                children: List.generate(
+                    5, (i) => Icon(Icons.star, color: Colors.amber, size: 16)),
               ),
               SizedBox(height: 4),
               Text(reviews[index]['review']!),
