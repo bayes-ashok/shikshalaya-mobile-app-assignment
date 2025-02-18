@@ -1,6 +1,7 @@
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shikshalaya/features/video_screen/presentation/view/video_lecture_screen.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../payment/presentation/view/khalti_payment.dart';
@@ -92,7 +93,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => KhaltiSDKDemo()),
+                MaterialPageRoute(builder: (context) => VideoLectureScreen()),
               );
 
             },
