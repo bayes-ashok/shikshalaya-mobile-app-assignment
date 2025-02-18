@@ -1,6 +1,10 @@
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
+
+import '../../../payment/presentation/view/khalti_payment.dart';
+import '../view_model/bloc/course_bloc.dart';
 
 class CourseDetailPage extends StatefulWidget {
   const CourseDetailPage({super.key});
@@ -86,7 +90,12 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               ),
             ),
             onPressed: () {
-              // Handle enroll action
+              context.read<CourseBloc>().add(
+                NavigateKhaltiDemoEvent(
+                  context: context,
+                  destination: KhaltiSDKDemo(),
+                ),
+              );
             },
             child: Text(
               'GET ENROLL',
