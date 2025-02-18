@@ -90,12 +90,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               ),
             ),
             onPressed: () {
-              context.read<CourseBloc>().add(
-                NavigateKhaltiDemoEvent(
-                  context: context,
-                  destination: KhaltiSDKDemo(),
-                ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => KhaltiSDKDemo()),
               );
+
             },
             child: Text(
               'GET ENROLL',

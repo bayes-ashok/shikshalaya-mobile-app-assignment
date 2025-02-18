@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/features/course/presentation/view/course_detail_page.dart';
+
+import '../../../course/presentation/view_model/bloc/course_bloc.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -122,9 +125,13 @@ class DashboardView extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => CourseDetailPage(),
+                builder: (context) => BlocProvider(
+                  create: (context) => CourseBloc(),
+                  child: CourseDetailPage(),
+                ),
               ),
             );
+
           },
           child: buildCourseCard(
             title: cardData[index]['title']!,
