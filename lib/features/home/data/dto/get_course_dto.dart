@@ -23,6 +23,7 @@ class GetAllCourseDTO {
 
 @JsonSerializable()
 class CourseDTO {
+  final String courseId;
   final String instructorId;
   final String instructorName;
   final String date;
@@ -42,6 +43,7 @@ class CourseDTO {
   final bool isPublished;
 
   CourseDTO({
+    required this.courseId,
     required this.instructorId,
     required this.instructorName,
     required this.date,

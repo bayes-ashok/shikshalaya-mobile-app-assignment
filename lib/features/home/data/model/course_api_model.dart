@@ -91,7 +91,7 @@ class StudentApiModel extends Equatable {
 @JsonSerializable()
 class CourseApiModel extends Equatable {
   @JsonKey(name: '_id')
-  final String? courseId;
+  final String courseId;
   final String instructorId;
   final String instructorName;
   final DateTime date;
@@ -111,7 +111,7 @@ class CourseApiModel extends Equatable {
   final bool isPublished;
 
   const CourseApiModel({
-    this.courseId,
+    required this.courseId,
     required this.instructorId,
     required this.instructorName,
     required this.date,
@@ -137,6 +137,7 @@ class CourseApiModel extends Equatable {
 
   CourseEntity toEntity() {
     return CourseEntity(
+      courseId: courseId,
       instructorId: instructorId,
       instructorName:instructorName,
       date: date,
@@ -163,6 +164,7 @@ class CourseApiModel extends Equatable {
 
   factory CourseApiModel.fromEntity(CourseEntity entity) {
     return CourseApiModel(
+      courseId: entity.courseId,
       instructorId: entity.instructorId,
       instructorName: entity.instructorName,
       date: entity.date,

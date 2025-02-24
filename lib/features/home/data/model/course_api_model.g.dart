@@ -40,7 +40,7 @@ Map<String, dynamic> _$StudentApiModelToJson(StudentApiModel instance) =>
 
 CourseApiModel _$CourseApiModelFromJson(Map<String, dynamic> json) =>
     CourseApiModel(
-      courseId: json['_id'] as String?,
+      courseId: json['_id'] as String,
       instructorId: json['instructorId'] as String,
       instructorName: json['instructorName'] as String,
       date: DateTime.parse(json['date'] as String),

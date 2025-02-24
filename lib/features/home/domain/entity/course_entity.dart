@@ -35,6 +35,7 @@ class StudentEntity extends Equatable {
 }
 
 class CourseEntity extends Equatable {
+  final String courseId;
   final String instructorId;
   final String instructorName;
   final DateTime date;
@@ -53,6 +54,7 @@ class CourseEntity extends Equatable {
   final bool isPublished;
 
   const CourseEntity({
+    required this.courseId,
     required this.instructorId,
     required this.instructorName,
     required this.date,
@@ -73,6 +75,7 @@ class CourseEntity extends Equatable {
 
   @override
   List<Object?> get props => [
+    courseId,
     instructorId,
     instructorName,
     date,

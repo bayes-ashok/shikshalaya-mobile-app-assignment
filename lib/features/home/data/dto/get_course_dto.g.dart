@@ -23,6 +23,7 @@ Map<String, dynamic> _$GetAllCourseDTOToJson(GetAllCourseDTO instance) =>
     };
 
 CourseDTO _$CourseDTOFromJson(Map<String, dynamic> json) => CourseDTO(
+      courseId: json['courseId'] as String,
       instructorId: json['instructorId'] as String,
       instructorName: json['instructorName'] as String,
       date: json['date'] as String,
@@ -46,6 +47,7 @@ CourseDTO _$CourseDTOFromJson(Map<String, dynamic> json) => CourseDTO(
     );
 
 Map<String, dynamic> _$CourseDTOToJson(CourseDTO instance) => <String, dynamic>{
+      'courseId': instance.courseId,
       'instructorId': instance.instructorId,
       'instructorName': instance.instructorName,
       'date': instance.date,
