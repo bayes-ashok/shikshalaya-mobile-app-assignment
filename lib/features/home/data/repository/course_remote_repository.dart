@@ -14,11 +14,15 @@ class CourseRepository implements ICourseRepository {
   Future<Either<Failure, List<CourseEntity>>> getAllCourses() async {
     try {
       final courses = await _courseRemoteDataSource.getAllCourses();
+      print("courses: $courses");
       return Right(courses);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print("Error encountered: $e");
+      print("Stack trace: $stackTrace");
       return Left(ApiFailure(message: e.toString()));
     }
   }
+
 
   @override
   Future<Either<Failure, CourseEntity>> getCourseById(String courseId) async {

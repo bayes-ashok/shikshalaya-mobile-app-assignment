@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../model/course_api_model.dart';
 
 part 'get_course_dto.g.dart';
@@ -35,6 +34,7 @@ class CourseDTO {
   final String description;
   final String image;
   final String welcomeMessage;
+  @JsonKey(defaultValue: 0.0)
   final double pricing;
   final String objectives;
   final List<StudentApiModel> students;

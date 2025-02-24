@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../domain/entity/course_entity.dart';
 
 part 'course_api_model.g.dart';
@@ -104,6 +103,7 @@ class CourseApiModel extends Equatable {
   final String description;
   final String image;
   final String welcomeMessage;
+  @JsonKey(defaultValue: 0.0)
   final double pricing;
   final String objectives;
   final List<StudentApiModel> students;
@@ -138,7 +138,7 @@ class CourseApiModel extends Equatable {
   CourseEntity toEntity() {
     return CourseEntity(
       instructorId: instructorId,
-      instructorName: instructorName,
+      instructorName:instructorName,
       date: date,
       title: title,
       category: category,
@@ -156,7 +156,7 @@ class CourseApiModel extends Equatable {
     );
   }
 
-  // New helper method to convert a list of CourseApiModels to a list of CourseEntities
+  // Helper method to convert a list of CourseApiModels to a list of CourseEntities
   static List<CourseEntity> toEntityList(List<CourseApiModel> apiModels) {
     return apiModels.map((apiModel) => apiModel.toEntity()).toList();
   }
@@ -176,10 +176,12 @@ class CourseApiModel extends Equatable {
       welcomeMessage: entity.welcomeMessage,
       pricing: entity.pricing,
       objectives: entity.objectives,
-      students:
-      entity.students.map((student) => StudentApiModel.fromEntity(student)).toList(),
-      curriculum:
-      entity.curriculum.map((lecture) => LectureApiModel.fromEntity(lecture)).toList(),
+      students: entity.students
+          .map((student) => StudentApiModel.fromEntity(student))
+          .toList(),
+      curriculum: entity.curriculum
+          .map((lecture) => LectureApiModel.fromEntity(lecture))
+          .toList(),
       isPublished: entity.isPublished,
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../../../../../app/constants/api_endpoints.dart';
@@ -11,31 +13,44 @@ class CourseRemoteDataSource {
 
   CourseRemoteDataSource(this._dio);
 
-  // Fetch all courses
   Future<List<CourseEntity>> getAllCourses() async {
     try {
-      Response response = await _dio.get(ApiEndpoints.getCourse);
+      final response = await _dio.get("http://10.0.2.2:8000/student/course/get");
+
+      print("Full Response: ${jsonEncode(response.data)}"); // Log the full JSON data
 
       if (response.statusCode == 200) {
-        // Convert the API response to DTO
-        var courseDTO = GetAllCourseDTO.fromJson(response.data);
+        var courseData = response.data['data']; // Access the 'data' field
 
-        // Explicitly cast and map the data into a list of CourseApiModel
-        List<CourseApiModel> courseApiModels = List<CourseApiModel>.from(
-            courseDTO.data.map((x) => CourseApiModel.fromJson(x as Map<String, dynamic>))
-        );
+        if (courseData != null && courseData is List) {
+          List<CourseEntity> courses = [];
 
-        // Map the DTO to the list of CourseEntities using the toEntityList method
-        return CourseApiModel.toEntityList(courseApiModels);
+          // Iterate over the course data list and convert each item
+          for (var course in courseData) {
+            // Ensure each course is a Map<String, dynamic> before conversion
+            if (course is Map<String, dynamic>) {
+              final courseApiModel = CourseApiModel.fromJson(course);
+              courses.add(courseApiModel.toEntity());
+            } else {
+              print("Unexpected course format: $course");
+            }
+          }
+          return courses;
+        } else {
+          throw Exception("Invalid course data format");
+        }
       } else {
-        throw Exception(response.statusMessage);
+        throw Exception("Failed to fetch courses: ${response.statusMessage}");
       }
     } on DioException catch (e) {
+      print("Dio error: $e");
       throw Exception(e);
     } catch (e) {
+      print("Error here: $e");
       throw Exception(e);
     }
   }
+
 
 
   // Fetch a single course by ID
