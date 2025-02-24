@@ -9,8 +9,13 @@ import 'package:shikshalaya/features/auth/domain/use_case/login_usecase.dart';
 import 'package:shikshalaya/features/auth/domain/use_case/register_user_usecase.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/signup/register_bloc.dart';
+import 'package:shikshalaya/features/home/data/repository/course_remote_repository.dart';
 import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
 import 'package:shikshalaya/features/test/presentation/view_model/bloc/test_bloc.dart';
+
+import '../../features/home/data/data_source/remote_datasource/course_remote_datasource.dart';
+import '../../features/home/domain/repository/course_repository.dart';
+import '../../features/home/domain/use_case/course_usecase.dart';
 
 final getIt = GetIt.instance;
 
@@ -79,12 +84,29 @@ _initRegisterDependencies() {
     ),
   );
 }
-
 _initHomeDependencies() async {
+  // Register CourseRemoteDataSource first (adjust constructor parameters as needed)
+  getIt.registerLazySingleton<CourseRemoteDataSource>(
+        () => CourseRemoteDataSource(getIt<Dio>()),
+  );
+
+  // Then, register the repository with its dependency
+  getIt.registerLazySingleton<ICourseRepository>(
+        () => CourseRepository(getIt<CourseRemoteDataSource>()),
+  );
+
+  // Register the GetAllCoursesUseCase with the repository dependency
+  getIt.registerLazySingleton<GetAllCoursesUseCase>(
+        () => GetAllCoursesUseCase(repository: getIt<ICourseRepository>()),
+  );
+
+  // Finally, register HomeCubit with the GetAllCoursesUseCase
   getIt.registerFactory<HomeCubit>(
-    () => HomeCubit(),
+        () => HomeCubit(getAllCoursesUseCase: getIt<GetAllCoursesUseCase>()),
   );
 }
+
+
 
 _initLoginDependencies() async {
   // getIt.registerLazySingleton<LoginUseCase>(
