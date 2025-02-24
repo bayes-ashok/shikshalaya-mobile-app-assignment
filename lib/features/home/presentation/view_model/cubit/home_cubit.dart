@@ -4,6 +4,8 @@ import 'package:shikshalaya/app/di/di.dart';
 import 'package:shikshalaya/features/auth/presentation/view/login_view.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
 
+import '../../../../course/presentation/view/course_detail_page.dart';
+import '../../../../course/presentation/view_model/bloc/course_bloc.dart';
 import '../../../domain/use_case/course_usecase.dart';
 import 'home_state.dart';
 
@@ -65,5 +67,17 @@ class HomeCubit extends Cubit<HomeState> {
         );
       }
     });
+  }
+
+  void navigateToCourseDetail(BuildContext context, String courseId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BlocProvider(
+          create: (context) => CourseBloc(courseId: courseId),
+          child: CourseDetailPage(), // CourseDetailPage no longer requires courseId in its constructor.
+        ),
+      ),
+    );
   }
 }

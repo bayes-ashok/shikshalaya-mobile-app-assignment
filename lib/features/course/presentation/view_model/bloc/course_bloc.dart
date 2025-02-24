@@ -6,16 +6,23 @@ part 'course_event.dart';
 part 'course_state.dart';
 
 class CourseBloc extends Bloc<CourseEvent, CourseState> {
-  CourseBloc() : super(CourseInitial()) {
-    on<NavigateKhaltiDemoEvent>(
-          (event, emit) {
-        Navigator.push(
-          event.context,
-          MaterialPageRoute(
-            builder: (context) => event.destination,
-          ),
-        );
-      },
-    );
+  final String courseId;
+
+  CourseBloc({required this.courseId}) : super(CourseInitial()) {
+    // Automatically dispatch an event to print the courseId.
+
+    on<PrintCourseIdEvent>((event, emit) {
+      print('CourseBloc: courseId is $courseId');
+    });
+
+    on<NavigateKhaltiDemoEvent>((event, emit) {
+      Navigator.push(
+        event.context,
+        MaterialPageRoute(
+          builder: (context) => event.destination,
+        ),
+      );
+    });
+
   }
 }

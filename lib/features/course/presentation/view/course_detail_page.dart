@@ -20,11 +20,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   @override
   void initState() {
     super.initState();
+    context.read<CourseBloc>().add(PrintCourseIdEvent());
     _initializeVideo();
   }
 
   Future<void> _initializeVideo() async {
-    // Use an online video URL
     String videoUrl =
         'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
 

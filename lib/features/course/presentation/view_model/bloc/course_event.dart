@@ -7,6 +7,13 @@ sealed class CourseEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class PrintCourseIdEvent extends CourseEvent {
+  const PrintCourseIdEvent();
+
+  @override
+  List<Object> get props => [];
+}
+
 class NavigateKhaltiDemoEvent extends CourseEvent {
   final BuildContext context;
   final Widget destination;

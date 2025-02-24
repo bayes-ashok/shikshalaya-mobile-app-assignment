@@ -136,16 +136,7 @@ class DashboardView extends StatelessWidget {
             final course = state.courses[index];
             return GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        BlocProvider(
-                          create: (context) => CourseBloc(),
-                          child: CourseDetailPage(),
-                        ),
-                  ),
-                );
+                context.read<HomeCubit>().navigateToCourseDetail(context, course.courseId);
               },
               child: buildCourseCard(
                 title: course.title,
