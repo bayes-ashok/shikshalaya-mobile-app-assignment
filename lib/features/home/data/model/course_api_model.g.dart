@@ -52,7 +52,7 @@ CourseApiModel _$CourseApiModelFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String,
       image: json['image'] as String,
       welcomeMessage: json['welcomeMessage'] as String,
-      pricing: (json['pricing'] as num).toDouble(),
+      pricing: (json['pricing'] as num?)?.toDouble() ?? 0.0,
       objectives: json['objectives'] as String,
       students: (json['students'] as List<dynamic>)
           .map((e) => StudentApiModel.fromJson(e as Map<String, dynamic>))
