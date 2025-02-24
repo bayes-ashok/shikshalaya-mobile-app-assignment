@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/features/course/presentation/view/course_detail_page.dart';
+import 'package:shikshalaya/features/course/presentation/view_model/bloc/course_bloc.dart';
 
-import '../../../course/presentation/view_model/bloc/course_bloc.dart';
+import '../view_model/cubit/home_cubit.dart';
+import '../view_model/cubit/home_state.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({super.key});
@@ -38,13 +40,10 @@ class DashboardView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Search Bar
               _buildSearchBar(),
               const SizedBox(height: 16),
-              // Filter Chips
               _buildFilterChips(),
               const SizedBox(height: 16),
-              // Explore Courses Section
               const Text(
                 'Explore Courses',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -69,8 +68,8 @@ class DashboardView extends StatelessWidget {
         ),
         filled: true,
         fillColor: Colors.white,
-        contentPadding:
-        const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        contentPadding: const EdgeInsets.symmetric(
+            vertical: 15, horizontal: 20),
       ),
     );
   }
@@ -80,23 +79,23 @@ class DashboardView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         FilterChip(
-          label: const Text('Loksewa',
-              style: TextStyle(fontFamily: 'Roboto Bold')),
+          label: const Text('Loksewa', style: TextStyle(
+              fontFamily: 'Roboto Bold')),
           onSelected: (_) {},
           backgroundColor: Colors.deepPurple.shade50,
           selectedColor: Colors.deepPurpleAccent,
           selected: false,
         ),
         FilterChip(
-          label: Text('Bridge Course',
-              style: TextStyle(fontFamily: 'Roboto Bold')),
+          label: const Text('Bridge Course', style: TextStyle(
+              fontFamily: 'Roboto Bold')),
           onSelected: (_) {},
           backgroundColor: Colors.deepPurple.shade50,
           selectedColor: Colors.deepPurpleAccent,
           selected: false,
         ),
         FilterChip(
-          label: Text('CEE', style: TextStyle(fontFamily: 'Roboto Bold')),
+          label: const Text('CEE', style: TextStyle(fontFamily: 'Roboto Bold')),
           onSelected: (_) {},
           backgroundColor: Colors.deepPurple.shade50,
           selectedColor: Colors.deepPurpleAccent,
@@ -107,42 +106,58 @@ class DashboardView extends StatelessWidget {
   }
 
   Widget _buildCourseGrid(BuildContext context) {
-    return GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount:
-        MediaQuery.of(context).orientation == Orientation.portrait ? 2 : 3,
-        mainAxisSpacing: 16,
-        crossAxisSpacing: 16,
-        childAspectRatio:
-        MediaQuery.of(context).orientation == Orientation.portrait ? 3 / 4 : 20 / 17,
-      ),
-      itemCount: cardData.length,
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BlocProvider(
-                  create: (context) => CourseBloc(),
-                  child: CourseDetailPage(),
-                ),
+    return BlocBuilder<HomeCubit, HomeState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!state.isSuccess) {
+          return Center(
+              child: Text(state.errorMessage ?? "Failed to load courses"));
+        }
+        if (state.courses.isEmpty) {
+          return const Center(child: Text("No courses available"));
+        }
+        return GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: MediaQuery
+                .of(context)
+                .orientation == Orientation.portrait ? 2 : 3,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: MediaQuery
+                .of(context)
+                .orientation == Orientation.portrait ? 3 / 4 : 20 / 17,
+          ),
+          itemCount: state.courses.length,
+          itemBuilder: (context, index) {
+            final course = state.courses[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        BlocProvider(
+                          create: (context) => CourseBloc(),
+                          child: CourseDetailPage(),
+                        ),
+                  ),
+                );
+              },
+              child: buildCourseCard(
+                title: course.title,
+                subtitle: course.instructorName ?? "Unknown Instructor",
+                imagePath: course.image,
               ),
             );
-
           },
-          child: buildCourseCard(
-            title: cardData[index]['title']!,
-            subtitle: cardData[index]['subtitle']!,
-            imagePath: cardData[index]['imagePath']!,
-          ),
         );
       },
     );
   }
-
 
   Widget buildCourseCard({
     required String title,
@@ -163,7 +178,7 @@ class DashboardView extends StatelessWidget {
             ),
             child: Stack(
               children: [
-                Image.asset(
+                Image.network(
                   imagePath,
                   height: 130,
                   width: double.infinity,
@@ -172,8 +187,7 @@ class DashboardView extends StatelessWidget {
                 Container(
                   height: 130,
                   width: double.infinity,
-                  color: Colors.black
-                      .withOpacity(0.4), // Dark overlay for readability
+                  color: Colors.black.withOpacity(0.4),
                 ),
               ],
             ),
@@ -209,35 +223,6 @@ class DashboardView extends StatelessWidget {
           ),
         ],
       ),
-
     );
   }
 }
-
-final List<Map<String, String>> cardData = [
-  {
-    'title': 'Botany Theory Classes\nfor Common Entrance Examination (CEE)',
-    'subtitle': 'By Hamro Academy',
-    'imagePath': 'assets/images/cee_botany.png',
-  },
-  {
-    'title': 'Entrance Preparation for Institute of Engineering (IOE)',
-    'subtitle': 'By PEA Association Pvt. Ltd.',
-    'imagePath': 'assets/images/ioe.png',
-  },
-  {
-    'title': 'Section Officer – Written Paper',
-    'subtitle': 'By Edusoft Academy',
-    'imagePath': 'assets/images/section_officer.jpg',
-  },
-  {
-    'title': 'Section officer - MOFA | Foreign Policy & International Relation',
-    'subtitle': 'By NICE Institute',
-    'imagePath': 'assets/images/mofa.jpg',
-  },
-  {
-    'title': 'CEE Preparation Full Course (1 Year Validity)',
-    'subtitle': 'By Hamro Academy',
-    'imagePath': 'assets/images/cee.jpg',
-  },
-];
