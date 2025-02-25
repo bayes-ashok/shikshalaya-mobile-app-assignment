@@ -55,20 +55,29 @@ class CourseRemoteDataSource {
 
   // Fetch a single course by ID
   Future<CourseEntity> getCourseById(String courseId) async {
+    print("hancy is fetching course with ID: $courseId");
     try {
-      Response response = await _dio.get('${ApiEndpoints.getCourseById}/$courseId');
+      final response = await _dio.get("http://10.0.2.2:8000/student/course/get/details/$courseId");
+
+      print("hancy ko Response: ${jsonEncode(response.data)}"); // Log the full JSON data
 
       if (response.statusCode == 200) {
-        // Convert the API response to a CourseApiModel
-        var courseApiModel = CourseApiModel.fromJson(response.data);
-        // Convert the CourseApiModel to a CourseEntity
-        return courseApiModel.toEntity();
+        var courseData = response.data['data']; // Access the 'data' field
+
+        if (courseData != null && courseData is Map<String, dynamic>) {
+          final courseApiModel = CourseApiModel.fromJson(courseData);
+          return courseApiModel.toEntity();
+        } else {
+          throw Exception("Invalid course data format");
+        }
       } else {
-        throw Exception(response.statusMessage);
+        throw Exception("Failed to fetch course: ${response.statusMessage}");
       }
     } on DioException catch (e) {
+      print("Dio error: $e");
       throw Exception(e);
     } catch (e) {
+      print("Error here: $e");
       throw Exception(e);
     }
   }
