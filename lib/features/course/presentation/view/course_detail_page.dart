@@ -1,14 +1,13 @@
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shikshalaya/features/video_screen/presentation/view/video_lecture_screen.dart';
 import 'package:video_player/video_player.dart';
-
 import '../../../payment/presentation/view/khalti_payment.dart';
 import '../view_model/bloc/course_bloc.dart';
+import '../../domain/entity/course_entity.dart';
 
 class CourseDetailPage extends StatefulWidget {
-  final String courseId; // Accepting courseId as a parameter
+  final String courseId;
   const CourseDetailPage({super.key, required this.courseId});
 
   @override
@@ -17,6 +16,7 @@ class CourseDetailPage extends StatefulWidget {
 
 class _CourseDetailPageState extends State<CourseDetailPage> {
   late FlickManager flickManager;
+  bool isEnrolled = false; // Static enrollment status
 
   @override
   void initState() {
@@ -29,15 +29,14 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     String videoUrl =
         'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
 
-    // Initialize the FlickManager with the video URL
     flickManager = FlickManager(
       videoPlayerController:
-      VideoPlayerController.networkUrl(Uri.parse(videoUrl))
-        ..initialize().then((_) {
-          setState(() {});
-        }).catchError((error) {
-          print('Error loading video: $error');
-        }),
+          VideoPlayerController.networkUrl(Uri.parse(videoUrl))
+            ..initialize().then((_) {
+              setState(() {});
+            }).catchError((error) {
+              print('Error loading video: $error');
+            }),
     );
   }
 
@@ -62,25 +61,34 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             ],
           ),
         ),
-        body: Column(
-          children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: FlickVideoPlayer(
-                flickManager: flickManager, // Using flickManager here
-              ),
-            ),
-
-            Expanded(
-              child: TabBarView(
+        body: BlocBuilder<CourseBloc, CourseState>(
+          builder: (context, state) {
+            if (state is CourseLoading) {
+              return Center(child: CircularProgressIndicator());
+            } else if (state is CourseError) {
+              return Center(child: Text(state.message));
+            } else if (state is CourseLoaded) {
+              final course = state.course;
+              return Column(
                 children: [
-                  OverviewTab(),
-                  LessonsTab(),
-                  ReviewsTab(),
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: FlickVideoPlayer(flickManager: flickManager),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        OverviewTab(course: course),
+                        LessonsTab(course: course, isEnrolled: isEnrolled),
+                        ReviewsTab(),
+                      ],
+                    ),
+                  ),
                 ],
-              ),
-            ),
-          ],
+              );
+            }
+            return Center(child: Text("Something went wrong!"));
+          },
         ),
         bottomNavigationBar: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -91,13 +99,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => VideoLectureScreen()),
-              );
-
-            },
+            onPressed: () {},
             child: Text(
               'GET ENROLL',
               style: TextStyle(fontSize: 18),
@@ -109,9 +111,10 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   }
 }
 
-
 class OverviewTab extends StatelessWidget {
-  const OverviewTab({super.key});
+  final CourseEntity course;
+  const OverviewTab({super.key, required this.course});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -120,19 +123,19 @@ class OverviewTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Section Officer – Written Paper | शाखा अधिकृत लेखनमिति पत्र',
+            course.title,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 8),
-          Text('By Edusoft Academy'),
+          Text('By ${course.instructorName}'),
           SizedBox(height: 8),
-          Row(
-            children: List.generate(
-                5, (index) => Icon(Icons.star, color: Colors.amber)),
+          Text(
+            '${course.category} | ${course.level} | ${course.primaryLanguage}',
+            style: TextStyle(color: Colors.grey[600]),
           ),
           SizedBox(height: 8),
           Text(
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer rhoncus vitae nisl...',
+            course.description,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
@@ -144,8 +147,12 @@ class OverviewTab extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              InfoBox(icon: Icons.video_library, text: '80+ Lectures'),
-              InfoBox(icon: Icons.schedule, text: '12 Weeks'),
+              InfoBox(
+                  icon: Icons.people,
+                  text: '${course.students.length} Enrolled'),
+              InfoBox(
+                  icon: Icons.video_library,
+                  text: '${course.curriculum.length} Lectures'),
             ],
           ),
         ],
@@ -155,30 +162,46 @@ class OverviewTab extends StatelessWidget {
 }
 
 class LessonsTab extends StatelessWidget {
-  LessonsTab({super.key});
-  final List<String> lessons = [
-    '1.1 शासनको महत्त्व, अवधारणा, सन्दर्भ र विशेषता',
-    '1.2 शासनको राजनीतिक तथा प्रशासनिक संरचना',
-    '1.3 सूचनाको हक र पारदर्शिता',
-    '1.4 राष्ट्र निर्माण र राज्य निर्माण',
-    '1.5 नेपालको शासन प्रणाली',
-    '1.6 बहुस्तरीय शासन र नेपाल',
-  ];
+  final CourseEntity course;
+  final bool isEnrolled;
+
+  const LessonsTab({super.key, required this.course, required this.isEnrolled});
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       padding: EdgeInsets.all(16),
-      itemCount: lessons.length,
+      itemCount: course.curriculum.length,
       itemBuilder: (context, index) {
+        final lecture = course.curriculum[index];
+        final isLocked = !lecture.freePreview &&
+            !isEnrolled; // Lock if not preview and not enrolled
+
         return Container(
           margin: EdgeInsets.symmetric(vertical: 8),
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: isLocked ? Colors.grey[300] : Colors.white,
             borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: isLocked ? Colors.grey : Colors.blue),
           ),
-          child: Text(lessons[index]),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  lecture.title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isLocked ? Colors.grey : Colors.black,
+                  ),
+                ),
+              ),
+              if (isLocked)
+                Icon(Icons.lock,
+                    color: Colors.red), // Show lock icon if restricted
+            ],
+          ),
         );
       },
     );
