@@ -15,6 +15,7 @@ import '../../features/course/data/data_source/remote_datasource/course_remote_d
 import '../../features/course/data/repository/course_remote_repository.dart';
 import '../../features/course/domain/repository/course_repository.dart';
 import '../../features/course/domain/use_case/course_usecase.dart';
+import '../../features/course/presentation/view_model/bloc/course_bloc.dart';
 
 
 final getIt = GetIt.instance;
@@ -100,10 +101,20 @@ _initHomeDependencies() async {
         () => GetAllCoursesUseCase(repository: getIt<ICourseRepository>()),
   );
 
+  getIt.registerLazySingleton<GetCourseByIdUseCase>(
+        () => GetCourseByIdUseCase(getIt<ICourseRepository>()),
+  );
+
   // Finally, register HomeCubit with the GetAllCoursesUseCase
   getIt.registerFactory<HomeCubit>(
         () => HomeCubit(getAllCoursesUseCase: getIt<GetAllCoursesUseCase>()),
   );
+
+  // Register CourseBloc with its dependencies
+  getIt.registerFactory<CourseBloc>(
+        () => CourseBloc(getCourseByIdUseCase: getIt<GetCourseByIdUseCase>()),
+  );
+
 }
 
 
