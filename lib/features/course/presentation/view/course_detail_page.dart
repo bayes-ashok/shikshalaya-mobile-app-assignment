@@ -8,7 +8,8 @@ import '../../../payment/presentation/view/khalti_payment.dart';
 import '../view_model/bloc/course_bloc.dart';
 
 class CourseDetailPage extends StatefulWidget {
-  const CourseDetailPage({super.key});
+  final String courseId; // Accepting courseId as a parameter
+  const CourseDetailPage({super.key, required this.courseId});
 
   @override
   State<CourseDetailPage> createState() => _CourseDetailPageState();
@@ -20,7 +21,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   @override
   void initState() {
     super.initState();
-    context.read<CourseBloc>().add(PrintCourseIdEvent());
+    context.read<CourseBloc>().add(FetchCourseByIdEvent(widget.courseId));
     _initializeVideo();
   }
 
