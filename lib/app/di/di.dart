@@ -9,13 +9,13 @@ import 'package:shikshalaya/features/auth/domain/use_case/login_usecase.dart';
 import 'package:shikshalaya/features/auth/domain/use_case/register_user_usecase.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/signup/register_bloc.dart';
-import 'package:shikshalaya/features/home/data/repository/course_remote_repository.dart';
 import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
 import 'package:shikshalaya/features/test/presentation/view_model/bloc/test_bloc.dart';
+import '../../features/course/data/data_source/remote_datasource/course_remote_datasource.dart';
+import '../../features/course/data/repository/course_remote_repository.dart';
+import '../../features/course/domain/repository/course_repository.dart';
+import '../../features/course/domain/use_case/course_usecase.dart';
 
-import '../../features/home/data/data_source/remote_datasource/course_remote_datasource.dart';
-import '../../features/home/domain/repository/course_repository.dart';
-import '../../features/home/domain/use_case/course_usecase.dart';
 
 final getIt = GetIt.instance;
 

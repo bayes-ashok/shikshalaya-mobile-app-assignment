@@ -155,10 +155,10 @@ class _KhaltiSDKDemoState extends State<KhaltiSDKDemo> {
                               MaterialPageRoute(builder: (context) => TestScreen()),
                             );
                           } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => CourseDetailPage()),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(builder: (context) => CourseDetailPage()),
+                            // );
                           }
                         },
                         child: const Text('Proceed'),

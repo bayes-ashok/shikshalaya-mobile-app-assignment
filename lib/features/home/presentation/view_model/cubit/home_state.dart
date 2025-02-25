@@ -5,8 +5,8 @@ import 'package:shikshalaya/features/home/presentation/view/dashboard_view.dart'
 import 'package:shikshalaya/features/home/presentation/view/home_view.dart';
 import 'package:shikshalaya/features/test/presentation/view/test_screen.dart';
 import '../../../../../app/di/di.dart';
+import '../../../../course/domain/entity/course_entity.dart';
 import '../../../../test/presentation/view_model/bloc/test_bloc.dart';
-import '../../../domain/entity/course_entity.dart';
 import 'home_cubit.dart';
 
 class HomeState extends Equatable {

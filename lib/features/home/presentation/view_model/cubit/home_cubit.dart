@@ -4,9 +4,9 @@ import 'package:shikshalaya/app/di/di.dart';
 import 'package:shikshalaya/features/auth/presentation/view/login_view.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
 
+import '../../../../course/domain/use_case/course_usecase.dart';
 import '../../../../course/presentation/view/course_detail_page.dart';
 import '../../../../course/presentation/view_model/bloc/course_bloc.dart';
-import '../../../domain/use_case/course_usecase.dart';
 import 'home_state.dart';
 
 
