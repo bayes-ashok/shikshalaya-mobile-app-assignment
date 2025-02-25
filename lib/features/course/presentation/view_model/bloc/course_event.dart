@@ -39,3 +39,18 @@ class NavigateKhaltiDemoEvent extends CourseEvent {
   @override
   List<Object> get props => [context, destination];
 }
+
+
+class NavigateToVideoPlayerEvent extends CourseEvent {
+  final BuildContext context;
+  final String videoUrl;
+
+  const NavigateToVideoPlayerEvent({
+    required this.context,
+    required this.videoUrl,
+  });
+
+  @override
+  List<Object> get props => [context, videoUrl];
+}
+

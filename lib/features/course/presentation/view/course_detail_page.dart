@@ -2,6 +2,7 @@ import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_player/video_player.dart';
+import '../../../../core/common/common_snackbar.dart';
 import '../../../payment/presentation/view/khalti_payment.dart';
 import '../view_model/bloc/course_bloc.dart';
 import '../../domain/entity/course_entity.dart';
@@ -170,43 +171,95 @@ class LessonsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: course.curriculum.length,
       itemBuilder: (context, index) {
         final lecture = course.curriculum[index];
-        final isLocked = !lecture.freePreview &&
-            !isEnrolled; // Lock if not preview and not enrolled
+        final isLocked = !lecture.freePreview && !isEnrolled; // Lock if not preview and not enrolled
 
-        return Container(
-          margin: EdgeInsets.symmetric(vertical: 8),
-          padding: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isLocked ? Colors.grey[300] : Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: isLocked ? Colors.grey : Colors.blue),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  lecture.title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isLocked ? Colors.grey : Colors.black,
+        // ✅ Ensure video URL starts with HTTPS
+        final secureVideoUrl = lecture.videoUrl.startsWith('http:')
+            ? lecture.videoUrl.replaceFirst('http:', 'https:')
+            : lecture.videoUrl;
+
+        return GestureDetector(
+          onTap: () {
+            if (isLocked) {
+              showMySnackBar(
+                context: context,
+                message: "Access restricted! Enroll to continue learning. 📚",
+                color: Colors.deepOrange,
+              );
+            } else {
+              // ✅ Pass secure video URL to the Bloc if unlocked
+              context.read<CourseBloc>().add(
+                NavigateToVideoPlayerEvent(
+                  context: context,
+                  videoUrl: secureVideoUrl, // ✅ Fixed URL
+                ),
+              );
+            }
+          },
+          child: Card(
+            elevation: isLocked ? 1 : 4, // More elevation for unlocked videos
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: isLocked ? Colors.grey : Colors.blue, width: 1),
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: isLocked ? Colors.grey[300] : Colors.white,
+                  ),
+                  child: Row(
+                    children: [
+                      // 🎥 Video Icon to indicate it's a playable video
+                      Icon(
+                        Icons.play_circle_fill,
+                        color: isLocked ? Colors.grey : Colors.blueAccent,
+                        size: 32,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          lecture.title,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isLocked ? Colors.grey[700] : Colors.black,
+                          ),
+                        ),
+                      ),
+                      if (isLocked)
+                        const Icon(Icons.lock, color: Colors.red), // Show lock icon if restricted
+                    ],
                   ),
                 ),
-              ),
-              if (isLocked)
-                Icon(Icons.lock,
-                    color: Colors.red), // Show lock icon if restricted
-            ],
+
+                // 🔒 Overlay effect for locked videos
+                if (isLocked)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.3), // Dark overlay
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },
     );
   }
 }
+
+
+
 
 class ReviewsTab extends StatelessWidget {
   ReviewsTab({super.key});
