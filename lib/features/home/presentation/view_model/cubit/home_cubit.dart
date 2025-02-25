@@ -73,9 +73,9 @@ class HomeCubit extends Cubit<HomeState> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BlocProvider(
-          create: (context) => CourseBloc(courseId: courseId),
-          child: CourseDetailPage(), // CourseDetailPage no longer requires courseId in its constructor.
+        builder: (context) => BlocProvider.value(
+          value: getIt<CourseBloc>(), // Using GetIt to provide the instance
+          child: CourseDetailPage(courseId: courseId),
         ),
       ),
     );
