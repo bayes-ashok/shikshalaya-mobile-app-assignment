@@ -1,6 +1,8 @@
+
+// Event File: course_event.dart
 part of 'course_bloc.dart';
 
-sealed class CourseEvent extends Equatable {
+abstract class CourseEvent extends Equatable {
   const CourseEvent();
 
   @override
@@ -8,10 +10,21 @@ sealed class CourseEvent extends Equatable {
 }
 
 class PrintCourseIdEvent extends CourseEvent {
-  const PrintCourseIdEvent();
+  final String courseId;
+
+  const PrintCourseIdEvent(this.courseId);
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [courseId];
+}
+
+class FetchCourseByIdEvent extends CourseEvent {
+  final String courseId;
+
+  const FetchCourseByIdEvent(this.courseId);
+
+  @override
+  List<Object> get props => [courseId];
 }
 
 class NavigateKhaltiDemoEvent extends CourseEvent {
