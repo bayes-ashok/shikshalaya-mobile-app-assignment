@@ -12,30 +12,60 @@ part 'course_state.dart';
 
 class CourseBloc extends Bloc<CourseEvent, CourseState> {
   final GetCourseByIdUseCase _getCourseByIdUseCase;
+  final IsEnrolledUseCase _isEnrolledUseCase;
 
   CourseBloc({
     required GetCourseByIdUseCase getCourseByIdUseCase,
+    required IsEnrolledUseCase isEnrolledUseCase,
   })  : _getCourseByIdUseCase = getCourseByIdUseCase,
+        _isEnrolledUseCase = isEnrolledUseCase,
         super(CourseInitial()) {
 
     on<PrintCourseIdEvent>((event, emit) {
       print('CourseBloc: courseId is ${event.courseId}');
     });
 
+    on<CheckEnrollmentEvent>((event, emit) async {
+      print("Checking enrollment status for course ${event.courseId}");
+
+      final result = await _isEnrolledUseCase(IsEnrolledParams(courseId: event.courseId));
+
+      result.fold(
+            (failure) {
+          print("Enrollment check failed: ${_mapFailureToMessage(failure)}");
+          emit(CourseError(message: _mapFailureToMessage(failure))); // ✅ Handle error
+        },
+            (isEnrolled) {
+          print("✅ Enrollment Status: $isEnrolled");
+          emit(EnrollmentCheckedState(isEnrolled: isEnrolled));
+
+          // ✅ Step 2: Now fetch course details
+          print("📌 Enrollment Check Completed! Fetching Course...");
+          add(FetchCourseByIdEvent(event.courseId));
+        },
+      );
+    });
+
     on<FetchCourseByIdEvent>((event, emit) async {
-      print("check check");
-      emit(CourseLoading());
+      print("Fetching course details...");
+
+      emit(CourseLoading()); // ✅ Show loading state before fetching
+
       final result = await _getCourseByIdUseCase(GetCourseByIdParams(courseId: event.courseId));
 
       result.fold(
-            (failure) => emit(CourseError(message: _mapFailureToMessage(failure))),
+            (failure) {
+          print("Course fetch failed: ${_mapFailureToMessage(failure)}");
+          emit(CourseError(message: _mapFailureToMessage(failure))); // ✅ Handle failure
+        },
             (course) {
-          print("Fetched Course: $course"); // Print the fetched course
-          emit(CourseLoaded(course: course));
+          print("✅ Course fetched successfully: ${course.title}");
+          emit(CourseLoaded(course: course)); // ✅ Emit CourseLoaded
         },
       );
-
     });
+
+
 
     on<NavigateKhaltiDemoEvent>((event, emit) {
       Navigator.push(

@@ -28,3 +28,29 @@ class CourseError extends CourseState {
   @override
   List<Object> get props => [message];
 }
+
+class EnrollmentLoading extends CourseState {}
+
+class EnrollmentChecked extends CourseState {
+  final bool isEnrolled;
+
+  const EnrollmentChecked({required this.isEnrolled});
+
+  @override
+  List<Object> get props => [isEnrolled];
+}
+
+class EnrollmentError extends CourseState {
+  final String message;
+
+  const EnrollmentError({required this.message});
+
+  @override
+  List<Object> get props => [message];
+}
+
+class EnrollmentCheckedState extends CourseState {
+  final bool isEnrolled;
+  const EnrollmentCheckedState({required this.isEnrolled});
+}
+

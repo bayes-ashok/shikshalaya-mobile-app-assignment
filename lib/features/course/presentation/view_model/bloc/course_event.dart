@@ -54,3 +54,11 @@ class NavigateToVideoPlayerEvent extends CourseEvent {
   List<Object> get props => [context, videoUrl];
 }
 
+class CheckEnrollmentEvent extends CourseEvent {
+  final String courseId;
+
+  const CheckEnrollmentEvent(this.courseId);
+
+  @override
+  List<Object> get props => [courseId];
+}
