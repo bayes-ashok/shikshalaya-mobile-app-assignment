@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:shikshalaya/app/shared_prefs/token_shared_prefs.dart';
 
 import '../../../../app/usecase/usecase.dart';
 import '../../../../core/error/failure.dart';
@@ -36,11 +37,16 @@ class GetCourseByIdParams extends Equatable {
 
 class GetCourseByIdUseCase implements UsecaseWithParams<CourseEntity, GetCourseByIdParams> {
   final ICourseRepository repository;
-
-  GetCourseByIdUseCase(this.repository);
+  final TokenSharedPrefs tokenSharedPrefs;
+  GetCourseByIdUseCase(this.repository, this.tokenSharedPrefs);
 
   @override
-  Future<Either<Failure, CourseEntity>> call(GetCourseByIdParams params) {
-    return repository.getCourseById(params.courseId);
+  Future<Either<Failure, CourseEntity>> call(GetCourseByIdParams params) async{
+    final token = await tokenSharedPrefs.getToken();
+    return token.fold((l){
+      return Left(l);
+    },(r) async{
+      return repository.getCourseById(params.courseId,r);
+    });
   }
 }

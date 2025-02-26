@@ -25,9 +25,9 @@ class CourseRepository implements ICourseRepository {
 
 
   @override
-  Future<Either<Failure, CourseEntity>> getCourseById(String courseId) async {
+  Future<Either<Failure, CourseEntity>> getCourseById(String courseId, String? token) async {
     try {
-      final course = await _courseRemoteDataSource.getCourseById(courseId);
+      final course = await _courseRemoteDataSource.getCourseById(courseId, token);
       return Right(course);
     } catch (e) {
       return Left(ApiFailure(message: e.toString()));

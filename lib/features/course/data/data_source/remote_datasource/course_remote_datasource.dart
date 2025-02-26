@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:shikshalaya/features/course/data/data_source/course_data_source.dart';
 
 import '../../../../../app/constants/api_endpoints.dart';
 import '../../../domain/entity/course_entity.dart';
@@ -8,11 +9,12 @@ import '../../dto/get_course_dto.dart';
 import '../../model/course_api_model.dart' show CourseApiModel;
 
 
-class CourseRemoteDataSource {
+class CourseRemoteDataSource implements ICourseDataSource{
   final Dio _dio;
 
   CourseRemoteDataSource(this._dio);
 
+  @override
   Future<List<CourseEntity>> getAllCourses() async {
     try {
       final response = await _dio.get("http://10.0.2.2:8000/student/course/get");
@@ -54,8 +56,9 @@ class CourseRemoteDataSource {
 
 
   // Fetch a single course by ID
-  Future<CourseEntity> getCourseById(String courseId) async {
-    print("hancy is fetching course with ID: $courseId");
+  @override
+  Future<CourseEntity> getCourseById(String courseId, String? token) async {
+    print("hancy is fetching course with ID: $token");
     try {
       final response = await _dio.get("http://10.0.2.2:8000/student/course/get/details/$courseId");
 
@@ -80,5 +83,11 @@ class CourseRemoteDataSource {
       print("Error here: $e");
       throw Exception(e);
     }
+  }
+
+  @override
+  Future<void> enrollStudentInCourse(String courseId, String studentId) {
+    // TODO: implement enrollStudentInCourse
+    throw UnimplementedError();
   }
 }

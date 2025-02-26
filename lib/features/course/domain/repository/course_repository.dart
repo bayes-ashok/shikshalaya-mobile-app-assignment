@@ -7,7 +7,7 @@ import '../entity/course_entity.dart';
 
 abstract interface class ICourseRepository {
 
-  Future<Either<Failure, CourseEntity>> getCourseById(String courseId);
+  Future<Either<Failure, CourseEntity>> getCourseById(String courseId, String? token);
 
   Future<Either<Failure, List<CourseEntity>>> getAllCourses();
 
