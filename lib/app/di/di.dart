@@ -115,6 +115,12 @@ _initHomeDependencies() async {
         getIt<TokenSharedPrefs>()),
   );
 
+
+  getIt.registerLazySingleton<IsEnrolledUseCase>(
+        () => IsEnrolledUseCase(getIt<CourseRepository>(),
+        getIt<TokenSharedPrefs>()),
+  );
+
   // Finally, register HomeCubit with the GetAllCoursesUseCase
   getIt.registerFactory<HomeCubit>(
         () => HomeCubit(getAllCoursesUseCase: getIt<GetAllCoursesUseCase>()),
@@ -122,7 +128,8 @@ _initHomeDependencies() async {
 
   // Register CourseBloc with its dependencies
   getIt.registerFactory<CourseBloc>(
-        () => CourseBloc(getCourseByIdUseCase: getIt<GetCourseByIdUseCase>()),
+        () => CourseBloc(getCourseByIdUseCase: getIt<GetCourseByIdUseCase>(),
+        isEnrolledUseCase: getIt<IsEnrolledUseCase>()),
   );
 
 }
