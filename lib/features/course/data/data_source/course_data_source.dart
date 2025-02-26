@@ -6,4 +6,6 @@ abstract interface class ICourseDataSource{
   Future<List<CourseEntity>> getAllCourses();
 
   Future<void> enrollStudentInCourse(String courseId, String studentId);
+
+  Future<bool> isEnrolled(String courseId, String studentId);
 }

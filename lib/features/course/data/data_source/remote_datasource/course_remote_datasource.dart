@@ -90,4 +90,45 @@ class CourseRemoteDataSource implements ICourseDataSource{
     // TODO: implement enrollStudentInCourse
     throw UnimplementedError();
   }
+
+  @override
+  Future<bool> isEnrolled(String courseId, String token) async {
+    try {
+      // Fetch user details using token
+      final authResponse = await _dio.get(
+        "http://10.0.2.2:8000/auth/check-auth",
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      if (authResponse.statusCode == 200) {
+        var userData = authResponse.data['data']['user'];
+
+        if (userData != null && userData is Map<String, dynamic>) {
+          String userId = userData['_id'];
+          print("User ID: $userId");
+
+          // Check enrollment status (No headers needed)
+          final enrollResponse = await _dio.get(
+            "http://10.0.2.2:8000/student/course/purchase-info/$courseId/$userId",
+          );
+
+          if (enrollResponse.statusCode == 200) {
+            return enrollResponse.data['data'] ?? false;
+          } else {
+            throw Exception("Failed to check enrollment: ${enrollResponse.statusMessage}");
+          }
+        } else {
+          throw Exception("Invalid user data format");
+        }
+      } else {
+        throw Exception("Failed to authenticate user: ${authResponse.statusMessage}");
+      }
+    } on DioException catch (e) {
+      print("Dio error: $e");
+      throw Exception(e);
+    } catch (e) {
+      print("Error here: $e");
+      throw Exception(e);
+    }
+  }
 }
