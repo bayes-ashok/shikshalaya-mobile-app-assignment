@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shikshalaya/app/shared_prefs/token_shared_prefs.dart';
 import 'package:shikshalaya/core/network/api_service.dart';
 import 'package:shikshalaya/core/network/hive_service.dart';
 // import 'package:shikshalaya/features/auth/data/data_source/local_data_source/auth_local_data_source.dart';
@@ -24,10 +26,12 @@ Future<void> initDependencies() async {
   // First initialize hive service
   await _initHiveService();
   await _initApiService();
+  await _initSharedPrefs();
   await _initHomeDependencies();
   await _initRegisterDependencies();
   await _initLoginDependencies();
   await _initTestDependencies();
+
 
   // await _initSplashScreenDependencies();
 }
@@ -41,6 +45,12 @@ _initApiService() {
   getIt.registerLazySingleton<Dio>(
     () => ApiService(Dio()).dio,
   );
+}
+
+
+Future<void> _initSharedPrefs() async{
+  final sharedPrefs = await SharedPreferences.getInstance();
+  getIt.registerLazySingleton<SharedPreferences>(()=>sharedPrefs);
 }
 
 _initRegisterDependencies() {
@@ -91,18 +101,18 @@ _initHomeDependencies() async {
         () => CourseRemoteDataSource(getIt<Dio>()),
   );
 
-  // Then, register the repository with its dependency
-  getIt.registerLazySingleton<ICourseRepository>(
+  getIt.registerLazySingleton(
         () => CourseRepository(getIt<CourseRemoteDataSource>()),
   );
 
   // Register the GetAllCoursesUseCase with the repository dependency
   getIt.registerLazySingleton<GetAllCoursesUseCase>(
-        () => GetAllCoursesUseCase(repository: getIt<ICourseRepository>()),
+        () => GetAllCoursesUseCase(repository: getIt<CourseRepository>()),
   );
 
   getIt.registerLazySingleton<GetCourseByIdUseCase>(
-        () => GetCourseByIdUseCase(getIt<ICourseRepository>()),
+        () => GetCourseByIdUseCase(getIt<CourseRepository>(),
+        getIt<TokenSharedPrefs>()),
   );
 
   // Finally, register HomeCubit with the GetAllCoursesUseCase
@@ -126,9 +136,14 @@ _initLoginDependencies() async {
   //   ),
   // );
 
+  getIt.registerLazySingleton<TokenSharedPrefs>(
+      ()=> TokenSharedPrefs(getIt<SharedPreferences>()),
+  );
+
   getIt.registerLazySingleton<LoginUseCase>(
     () => LoginUseCase(
       getIt<AuthRemoteRepository>(),
+      getIt<TokenSharedPrefs>(),
     ),
   );
 
