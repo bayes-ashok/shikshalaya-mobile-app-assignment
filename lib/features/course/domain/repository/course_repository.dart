@@ -13,4 +13,6 @@ abstract interface class ICourseRepository {
 
   Future<Either<Failure, void>> enrollStudentInCourse(String courseId, String studentId);
 
+  Future<Either<Failure, bool>> isEnrolled(String courseId, String token);
+
 }

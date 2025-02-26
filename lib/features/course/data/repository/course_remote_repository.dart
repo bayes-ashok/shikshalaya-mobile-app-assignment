@@ -40,4 +40,14 @@ class CourseRepository implements ICourseRepository {
     throw UnimplementedError();
   }
 
+  @override
+  Future<Either<Failure, bool>> isEnrolled(String courseId, String token) async{
+    try {
+      final course = await _courseRemoteDataSource.isEnrolled(courseId, token);
+      return Right(course);
+    } catch (e) {
+      return Left(ApiFailure(message: e.toString()));
+    }
+  }
+
 }
