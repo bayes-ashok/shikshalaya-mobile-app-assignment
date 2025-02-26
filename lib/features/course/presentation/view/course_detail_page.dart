@@ -22,7 +22,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   @override
   void initState() {
     super.initState();
-    context.read<CourseBloc>().add(FetchCourseByIdEvent(widget.courseId));
+    context.read<CourseBloc>().add(CheckEnrollmentEvent(widget.courseId));
     _initializeVideo();
   }
 
@@ -62,36 +62,49 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             ],
           ),
         ),
-        body: BlocBuilder<CourseBloc, CourseState>(
-          builder: (context, state) {
-            if (state is CourseLoading) {
-              return Center(child: CircularProgressIndicator());
-            } else if (state is CourseError) {
-              return Center(child: Text(state.message));
-            } else if (state is CourseLoaded) {
-              final course = state.course;
-              return Column(
-                children: [
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: FlickVideoPlayer(flickManager: flickManager),
-                  ),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        OverviewTab(course: course),
-                        LessonsTab(course: course, isEnrolled: isEnrolled),
-                        ReviewsTab(),
-                      ],
-                    ),
-                  ),
-                ],
-              );
+        body: BlocListener<CourseBloc, CourseState>(
+          listener: (context, state) {
+            if (state is EnrollmentCheckedState) {
+              setState(() {
+                isEnrolled = state.isEnrolled; // ✅ Safely update isEnrolled here
+              });
             }
-            return Center(child: Text("Something went wrong!"));
           },
+          child: BlocBuilder<CourseBloc, CourseState>(
+            builder: (context, state) {
+              print("Current state: $state"); // Debugging output
+
+              if (state is CourseLoading) {
+                return Center(child: CircularProgressIndicator());
+              } else if (state is CourseError) {
+                return Center(child: Text("Error: ${state.message}"));
+              } else if (state is CourseLoaded) {
+                final course = state.course;
+                return Column(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: FlickVideoPlayer(flickManager: flickManager),
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          OverviewTab(course: course),
+                          LessonsTab(course: course, isEnrolled: isEnrolled), // ✅ Updated dynamically
+                          ReviewsTab(),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Center(child: Text(""));
+            },
+          ),
         ),
-        bottomNavigationBar: Padding(
+        bottomNavigationBar: isEnrolled
+            ? null // ✅ Hides the button if enrolled
+            : Padding(
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -100,7 +113,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              // Add enrollment logic here
+            },
             child: Text(
               'GET ENROLL',
               style: TextStyle(fontSize: 18),
