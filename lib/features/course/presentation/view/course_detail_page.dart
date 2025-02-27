@@ -1,14 +1,12 @@
-import 'dart:developer';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:khalti_checkout_flutter/khalti_checkout_flutter.dart';
+import 'package:shikshalaya/features/payment/presentation/view_model/payment_bloc.dart';
 import 'package:video_player/video_player.dart';
 import '../../../../core/common/common_snackbar.dart';
+import '../../../payment/presentation/view/khalti_screen.dart';
 import '../view_model/bloc/course_bloc.dart';
 import '../../domain/entity/course_entity.dart';
-import 'package:shikshalaya/features/home/presentation/view/dashboard_view.dart';
-import 'package:shikshalaya/features/test/presentation/view/test_screen.dart';
 
 class CourseDetailPage extends StatefulWidget {
   final String courseId;
@@ -20,16 +18,13 @@ class CourseDetailPage extends StatefulWidget {
 
 class _CourseDetailPageState extends State<CourseDetailPage> {
   late FlickManager flickManager;
-  bool? isEnrolled = true; // Static enrollment status
-  Khalti? khalti;
-  PaymentResult? paymentResult;
+  bool? isEnrolled =true; // Static enrollment status
 
   @override
   void initState() {
     super.initState();
     context.read<CourseBloc>().add(CheckEnrollmentEvent(widget.courseId));
     _initializeVideo();
-    _initializeKhalti();
   }
 
   Future<void> _initializeVideo() async {
@@ -38,71 +33,13 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
     flickManager = FlickManager(
       videoPlayerController:
-      VideoPlayerController.networkUrl(Uri.parse(videoUrl))
-        ..initialize().then((_) {
-          setState(() {});
-        }).catchError((error) {
-          print('Error loading video: $error');
-        }),
+          VideoPlayerController.networkUrl(Uri.parse(videoUrl))
+            ..initialize().then((_) {
+              setState(() {});
+            }).catchError((error) {
+              print('Error loading video: $error');
+            }),
     );
-  }
-
-  Future<void> _initializeKhalti() async {
-    final payConfig = KhaltiPayConfig(
-      publicKey: '3ff578acbc104826a4ffd11b989a079f',
-      pidx: '8q2QnUhQpxdaXM3pV8WAiJ',
-      environment: Environment.test,
-    );
-
-    try {
-      final khaltiInstance = await Khalti.init(
-        enableDebugging: true,
-        payConfig: payConfig,
-        onPaymentResult: (paymentResult, khaltiInstance) {
-          log(paymentResult.toString());
-          setState(() {
-            this.paymentResult = paymentResult;
-          });
-          khaltiInstance.close(context);
-
-          // ✅ Handle Payment Result and Redirect
-          _handlePaymentResult(paymentResult);
-        },
-        onMessage: (khaltiInstance, {description, statusCode, event, needsPaymentConfirmation}) async {
-          log('Description: $description, Status Code: $statusCode, Event: $event, NeedsPaymentConfirmation: $needsPaymentConfirmation');
-          khaltiInstance.close(context);
-        },
-        onReturn: () => log('Successfully redirected to return_url.'),
-      );
-
-      setState(() {
-        khalti = khaltiInstance;
-      });
-
-    } catch (error) {
-      log('Error initializing Khalti: $error');
-    }
-  }
-
-  // ✅ Handles payment status and redirects the user
-  void _handlePaymentResult(PaymentResult paymentResult) {
-    final status = paymentResult.payload?.status;
-    final transactionId = paymentResult.payload?.transactionId;
-    final amount = paymentResult.payload?.totalAmount;
-
-    if (status == "Complete") {
-      // ✅ Payment was successful → Redirect to TestScreen
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => TestScreen()),
-      );
-    } else {
-      // ❌ Payment failed → Redirect to Dashboard
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => DashboardView()),
-      );
-    }
   }
 
   @override
@@ -130,12 +67,15 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           listener: (context, state) {
             if (state is EnrollmentCheckedState) {
               setState(() {
-                isEnrolled = state.isEnrolled;
+                isEnrolled =
+                    state.isEnrolled; // ✅ Safely update isEnrolled here
               });
             }
           },
           child: BlocBuilder<CourseBloc, CourseState>(
             builder: (context, state) {
+              print("Current state: $state"); // Debugging output
+
               if (state is CourseLoading) {
                 return Center(child: CircularProgressIndicator());
               } else if (state is CourseError) {
@@ -152,7 +92,10 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                       child: TabBarView(
                         children: [
                           OverviewTab(course: course),
-                          LessonsTab(course: course, isEnrolled: isEnrolled ?? false),
+                          LessonsTab(
+                              course: course,
+                              isEnrolled:
+                                  isEnrolled ?? false), // ✅ Updated dynamically
                           ReviewsTab(),
                         ],
                       ),
@@ -169,53 +112,42 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             : BlocBuilder<CourseBloc, CourseState>(
           builder: (context, state) {
             if (state is CourseLoaded) {
-              final course = state.course;
+              final course = state.course; // ✅ Fetch course from state
               return Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, // White button
                     padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(color: Colors.purple.shade700, width: 2),
                     ),
-                    elevation: 6,
                   ),
-                  onPressed: () => khalti?.open(context),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // 🟣 Khalti Logo
-                      Image.asset(
-                        'assets/images/khalti_logo.png',
-                        height: 24, // Adjust logo size
+                  onPressed: () {
+                    context.read<CourseBloc>().add(
+                      NavigateKhaltiDemoEvent(
+                        context: context,
+                        course: course, // Pass course ID
                       ),
-                      const SizedBox(width: 10), // Space between logo & text
-
-                      // 📝 Button Text
-                      Text(
-                        'Pay with Khalti',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.purple.shade700, // Khalti branding color
-                        ),
-                      ),
-                    ],
+                    );
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(builder: (context) => const KhaltiSDKDemo()),
+                    // );
+                  },
+                  child: Text(
+                    'GET ENROLL',
+                    style: TextStyle(fontSize: 18),
                   ),
                 ),
               );
             }
-            return SizedBox();
+            return SizedBox(); // If course data isn't available, return an empty widget
           },
         ),
       ),
     );
   }
 }
-
 
 class OverviewTab extends StatelessWidget {
   final CourseEntity course;
