@@ -17,7 +17,7 @@ class CourseDetailPage extends StatefulWidget {
 
 class _CourseDetailPageState extends State<CourseDetailPage> {
   late FlickManager flickManager;
-  bool isEnrolled = false; // Static enrollment status
+  bool? isEnrolled =true; // Static enrollment status
 
   @override
   void initState() {
@@ -66,7 +66,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           listener: (context, state) {
             if (state is EnrollmentCheckedState) {
               setState(() {
-                isEnrolled = state.isEnrolled; // ✅ Safely update isEnrolled here
+                isEnrolled =
+                    state.isEnrolled; // ✅ Safely update isEnrolled here
               });
             }
           },
@@ -90,7 +91,10 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                       child: TabBarView(
                         children: [
                           OverviewTab(course: course),
-                          LessonsTab(course: course, isEnrolled: isEnrolled), // ✅ Updated dynamically
+                          LessonsTab(
+                              course: course,
+                              isEnrolled:
+                                  isEnrolled ?? false), // ✅ Updated dynamically
                           ReviewsTab(),
                         ],
                       ),
@@ -102,26 +106,31 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             },
           ),
         ),
-        bottomNavigationBar: isEnrolled
+        bottomNavigationBar: isEnrolled ?? false
             ? null // ✅ Hides the button if enrolled
             : Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              KhaltiSDKDemo()), // Replace with your destination page
+                    );
+                  },
+                  child: Text(
+                    'GET ENROLL',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
               ),
-            ),
-            onPressed: () {
-              // Add enrollment logic here
-            },
-            child: Text(
-              'GET ENROLL',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -190,7 +199,8 @@ class LessonsTab extends StatelessWidget {
       itemCount: course.curriculum.length,
       itemBuilder: (context, index) {
         final lecture = course.curriculum[index];
-        final isLocked = !lecture.freePreview && !isEnrolled; // Lock if not preview and not enrolled
+        final isLocked = !lecture.freePreview &&
+            !isEnrolled; // Lock if not preview and not enrolled
 
         // ✅ Ensure video URL starts with HTTPS
         final secureVideoUrl = lecture.videoUrl.startsWith('http:')
@@ -208,18 +218,19 @@ class LessonsTab extends StatelessWidget {
             } else {
               // ✅ Pass secure video URL to the Bloc if unlocked
               context.read<CourseBloc>().add(
-                NavigateToVideoPlayerEvent(
-                  context: context,
-                  videoUrl: secureVideoUrl, // ✅ Fixed URL
-                ),
-              );
+                    NavigateToVideoPlayerEvent(
+                      context: context,
+                      videoUrl: secureVideoUrl, // ✅ Fixed URL
+                    ),
+                  );
             }
           },
           child: Card(
             elevation: isLocked ? 1 : 4, // More elevation for unlocked videos
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
-              side: BorderSide(color: isLocked ? Colors.grey : Colors.blue, width: 1),
+              side: BorderSide(
+                  color: isLocked ? Colors.grey : Colors.blue, width: 1),
             ),
             child: Stack(
               children: [
@@ -249,7 +260,8 @@ class LessonsTab extends StatelessWidget {
                         ),
                       ),
                       if (isLocked)
-                        const Icon(Icons.lock, color: Colors.red), // Show lock icon if restricted
+                        const Icon(Icons.lock,
+                            color: Colors.red), // Show lock icon if restricted
                     ],
                   ),
                 ),
@@ -272,9 +284,6 @@ class LessonsTab extends StatelessWidget {
     );
   }
 }
-
-
-
 
 class ReviewsTab extends StatelessWidget {
   ReviewsTab({super.key});

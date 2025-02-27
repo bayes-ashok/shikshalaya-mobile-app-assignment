@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:khalti_checkout_flutter/khalti_checkout_flutter.dart';
 import 'package:shikshalaya/features/course/presentation/view/course_detail_page.dart';
+import 'package:shikshalaya/features/home/presentation/view/dashboard_view.dart';
 import 'package:shikshalaya/features/test/presentation/view/test_screen.dart';
 
 class KhaltiSDKDemo extends StatefulWidget {
@@ -12,51 +13,60 @@ class KhaltiSDKDemo extends StatefulWidget {
 }
 
 class _KhaltiSDKDemoState extends State<KhaltiSDKDemo> {
-  late Future<Khalti?> khalti;
+  Future<Khalti?>? khaltiFuture;
+  Khalti? khalti;
 
   String pidx = 'KdY9wKo7EJjA8HWyWk4QqW';
-
   PaymentResult? paymentResult;
 
   @override
   void initState() {
     super.initState();
+    khaltiFuture = initializeKhalti();
+  }
+
+  Future<Khalti?> initializeKhalti() async {
     final payConfig = KhaltiPayConfig(
       publicKey: '3ff578acbc104826a4ffd11b989a079f',
       pidx: pidx,
       environment: Environment.test,
     );
 
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      final khaltiInstance = await Khalti.init(
+        enableDebugging: true,
+        payConfig: payConfig,
+        onPaymentResult: (paymentResult, khaltiInstance) {
+          log(paymentResult.toString());
+          setState(() {
+            this.paymentResult = paymentResult;
+          });
+          khaltiInstance.close(context);
+        },
+        onMessage: (
+            khaltiInstance, {
+              description,
+              statusCode,
+              event,
+              needsPaymentConfirmation,
+            }) async {
+          log(
+            'Description: $description, Status Code: $statusCode, Event: $event, NeedsPaymentConfirmation: $needsPaymentConfirmation',
+          );
+          khaltiInstance.close(context);
+        },
+        onReturn: () => log('Successfully redirected to return_url.'),
+      );
+
       setState(() {
-        khalti = Khalti.init(
-          enableDebugging: true,
-          payConfig: payConfig,
-          onPaymentResult: (paymentResult, khalti) {
-            log(paymentResult.toString());
-            setState(() {
-              this.paymentResult = paymentResult;
-            });
-            khalti.close(context);
-          },
-          onMessage: (
-              khalti, {
-                description,
-                statusCode,
-                event,
-                needsPaymentConfirmation,
-              }) async {
-            log(
-              'Description: $description, Status Code: $statusCode, Event: $event, NeedsPaymentConfirmation: $needsPaymentConfirmation',
-            );
-            khalti.close(context);
-          },
-          onReturn: () => log('Successfully redirected to return_url.'),
-        ).catchError((error) {
-          log('Error initializing Khalti: $error');
-        });
+        khalti = khaltiInstance;
       });
-    });
+
+      return khaltiInstance;
+    } catch (error) {
+      log('Error initializing Khalti: $error');
+      return null;
+    }
   }
 
   @override
@@ -68,20 +78,16 @@ class _KhaltiSDKDemoState extends State<KhaltiSDKDemo> {
       ),
       body: Center(
         child: FutureBuilder<Khalti?>(
-          future: khalti,
-          initialData: null,
+          future: khaltiFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
             }
-            if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-            final khaltiSnapshot = snapshot.data;
-            if (khaltiSnapshot == null) {
+            if (snapshot.hasError || !snapshot.hasData) {
               return const Text('Failed to initialize Khalti.');
             }
 
+            final khaltiSnapshot = snapshot.data!;
             return Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -155,10 +161,10 @@ class _KhaltiSDKDemoState extends State<KhaltiSDKDemo> {
                               MaterialPageRoute(builder: (context) => TestScreen()),
                             );
                           } else {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(builder: (context) => CourseDetailPage()),
-                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => DashboardView()),
+                            );
                           }
                         },
                         child: const Text('Proceed'),
