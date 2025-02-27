@@ -18,6 +18,7 @@ import '../../features/course/data/repository/course_remote_repository.dart';
 import '../../features/course/domain/repository/course_repository.dart';
 import '../../features/course/domain/use_case/course_usecase.dart';
 import '../../features/course/presentation/view_model/bloc/course_bloc.dart';
+import '../../features/payment/presentation/view_model/payment_bloc.dart';
 
 
 final getIt = GetIt.instance;
@@ -28,6 +29,7 @@ Future<void> initDependencies() async {
   await _initApiService();
   await _initSharedPrefs();
   await _initHomeDependencies();
+  await _initPaymentDependencies();
   await _initRegisterDependencies();
   await _initLoginDependencies();
   await _initTestDependencies();
@@ -129,9 +131,15 @@ _initHomeDependencies() async {
   // Register CourseBloc with its dependencies
   getIt.registerFactory<CourseBloc>(
         () => CourseBloc(getCourseByIdUseCase: getIt<GetCourseByIdUseCase>(),
-        isEnrolledUseCase: getIt<IsEnrolledUseCase>()),
+        isEnrolledUseCase: getIt<IsEnrolledUseCase>(),
+          paymentBloc: getIt<PaymentBloc>(),
+
+        ),
   );
 
+}
+_initPaymentDependencies() async {
+  getIt.registerLazySingleton<PaymentBloc>(() => PaymentBloc());
 }
 
 
