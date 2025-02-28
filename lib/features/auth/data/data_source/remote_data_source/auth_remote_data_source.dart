@@ -30,14 +30,18 @@ class AuthRemoteDataSource implements IAuthDataSource {
         final str = response.data['data']['accessToken'];
         return str;
       } else {
-        throw Exception(response.statusMessage);
+        throw Exception(response.data['message']);
       }
     } on DioException catch (e) {
-      throw Exception(e);
+      if (e.response != null && e.response?.data != null) {
+        throw Exception(e.response?.data['message'] ?? "An error occurred");
+      }
+      throw Exception("Network error, please try again.");
     } catch (e) {
-      throw Exception(e);
+      throw Exception(e.toString());
     }
   }
+
 
   @override
   Future<void> registerStudent(AuthEntity student) async {
