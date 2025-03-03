@@ -44,7 +44,6 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
           print("✅ Enrollment Status: $isEnrolled");
           emit(EnrollmentCheckedState(isEnrolled: isEnrolled));
 
-          // ✅ Step 2: Now fetch course details
           print("📌 Enrollment Check Completed! Fetching Course...");
           add(FetchCourseByIdEvent(event.courseId));
         },
@@ -72,13 +71,13 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
 
 
     on<NavigateKhaltiDemoEvent>((event, emit) {
-      String pidx="h7k3XCj4EJesYdjhSKC6KF";
+      String pidx="zNgCb4MH7bpzSX9bRpKJsB";
       Navigator.push(
         event.context,
         MaterialPageRoute(
           builder: (context) => BlocProvider.value(
             value: _paymentBloc,
-            child: KhaltiSDKDemo(course: event.course, pidx: pidx), // Now pidx is available
+            child: KhaltiSDKDemo(course: event.course, pidxx: pidx), // Now pidx is available
           ),
         ),
       );
