@@ -17,3 +17,4 @@ final class PidxGenerated extends PaymentState {
   @override
   List<Object> get props => [pidx];
 }
+final class PaymentCompleted extends PaymentState {}

@@ -16,3 +16,12 @@ class GeneratePidxEvent extends PaymentEvent {
   @override
   List<Object> get props => [courseId];
 }
+class OnPaymentCompleteEvent extends PaymentEvent {
+  final BuildContext context; // Pass context through the event
+  final CourseEntity course;
+
+  const OnPaymentCompleteEvent(this.context, this.course);
+
+  @override
+  List<Object> get props => [context, course];
+}
