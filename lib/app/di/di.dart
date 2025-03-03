@@ -14,7 +14,9 @@ import 'package:shikshalaya/features/auth/presentation/view_model/signup/registe
 import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
 import 'package:shikshalaya/features/payment/data/data_source/remote_data_source/payment_remote_data_source.dart';
 import 'package:shikshalaya/features/payment/data/repository/payment_remote_repository.dart';
-import 'package:shikshalaya/features/test/presentation/view_model/bloc/test_bloc.dart';
+import 'package:shikshalaya/features/test/data/repository/quiz_remote_repository.dart';
+import 'package:shikshalaya/features/test/domain/repository/quiz_repository.dart';
+import 'package:shikshalaya/features/test/presentation/view_model/bloc/quiz_bloc.dart';
 import '../../features/course/data/data_source/remote_datasource/course_remote_datasource.dart';
 import '../../features/course/data/repository/course_remote_repository.dart';
 import '../../features/course/domain/repository/course_repository.dart';
@@ -22,6 +24,9 @@ import '../../features/course/domain/use_case/course_usecase.dart';
 import '../../features/course/presentation/view_model/bloc/course_bloc.dart';
 import '../../features/payment/domain/use_case/on_payment_complete.dart';
 import '../../features/payment/presentation/view_model/payment_bloc.dart';
+import '../../features/test/data/data_source/remote_datasource/quiz_remote_data_source.dart';
+import '../../features/test/domain/use_case/get_questions_usecase.dart';
+import '../../features/test/domain/use_case/get_quiz_sets_usecase.dart';
 
 
 final getIt = GetIt.instance;
@@ -186,8 +191,32 @@ _initLoginDependencies() async {
   );
 }
 
-_initTestDependencies() async {
-  getIt.registerFactory<TestBloc>(
-    () => TestBloc(),
+_initTestDependencies() {
+
+  getIt.registerLazySingleton<QuizRemoteDataSource>(
+        () => QuizRemoteDataSource(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton(
+        () => QuizRepositoryImpl(getIt<QuizRemoteDataSource>()),
+  );
+
+  // Register the GetAllCoursesUseCase with the repository dependency
+  getIt.registerLazySingleton<GetQuizSetsUseCase>(
+        () => GetQuizSetsUseCase(getIt<QuizRepositoryImpl>()),
+  );
+
+
+  getIt.registerLazySingleton<GetQuestionsUseCase>(() =>
+      GetQuestionsUseCase(getIt<QuizRepositoryImpl>()),
+  );
+
+  // ✅ Register QuizBloc AFTER Registering Use Cases
+  getIt.registerFactory<QuizBloc>(
+        () =>
+        QuizBloc(
+          getQuizSetsUseCase: getIt<GetQuizSetsUseCase>(),
+          getQuestionsUseCase: getIt<GetQuestionsUseCase>(),
+        ),
   );
 }
