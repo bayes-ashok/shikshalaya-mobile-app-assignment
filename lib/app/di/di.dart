@@ -12,6 +12,7 @@ import 'package:shikshalaya/features/auth/domain/use_case/register_user_usecase.
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/signup/register_bloc.dart';
 import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
+import 'package:shikshalaya/features/news/data/repository/news_repository.dart';
 import 'package:shikshalaya/features/payment/data/data_source/remote_data_source/payment_remote_data_source.dart';
 import 'package:shikshalaya/features/payment/data/repository/payment_remote_repository.dart';
 import 'package:shikshalaya/features/test/data/repository/quiz_remote_repository.dart';
@@ -22,6 +23,10 @@ import '../../features/course/data/repository/course_remote_repository.dart';
 import '../../features/course/domain/repository/course_repository.dart';
 import '../../features/course/domain/use_case/course_usecase.dart';
 import '../../features/course/presentation/view_model/bloc/course_bloc.dart';
+import '../../features/news/data/data_source/remote_datasource/news_remote_datasource.dart';
+import '../../features/news/domain/repository/news_repository.dart';
+import '../../features/news/domain/use_case/fetch_news_usecase.dart';
+import '../../features/news/presentation/view_model/news_bloc.dart';
 import '../../features/payment/domain/use_case/on_payment_complete.dart';
 import '../../features/payment/presentation/view_model/payment_bloc.dart';
 import '../../features/test/data/data_source/remote_datasource/quiz_remote_data_source.dart';
@@ -41,6 +46,7 @@ Future<void> initDependencies() async {
   await _initRegisterDependencies();
   await _initLoginDependencies();
   await _initTestDependencies();
+  await _initNewsDependencies();
 
 
   // await _initSplashScreenDependencies();
@@ -218,5 +224,27 @@ _initTestDependencies() {
           getQuizSetsUseCase: getIt<GetQuizSetsUseCase>(),
           getQuestionsUseCase: getIt<GetQuestionsUseCase>(),
         ),
+  );
+}
+
+_initNewsDependencies() {
+  // ✅ Register Remote Data Source
+  getIt.registerLazySingleton<NewsRemoteDataSource>(
+        () => NewsRemoteDataSource(getIt<Dio>()),
+  );
+
+  // ✅ Register Repository
+  getIt.registerLazySingleton<NewsRepository>(
+        () => NewsRepositoryImpl(getIt<NewsRemoteDataSource>()),
+  );
+
+  // ✅ Register Use Case
+  getIt.registerLazySingleton<FetchNewsUseCase>(
+        () => FetchNewsUseCase(getIt<NewsRepository>()),
+  );
+
+  // ✅ Register BLoC
+  getIt.registerFactory<NewsBloc>(
+        () => NewsBloc(fetchNewsUseCase: getIt<FetchNewsUseCase>()),
   );
 }
