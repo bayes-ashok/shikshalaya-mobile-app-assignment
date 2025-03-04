@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/features/home/presentation/view/dashboard_view.dart';
 import 'package:shikshalaya/features/home/presentation/view/home_view.dart';
+import 'package:shikshalaya/features/home/presentation/view/news_screen.dart';
+import 'package:shikshalaya/features/settings/presentation/view/user_settings.dart';
+import 'package:shikshalaya/features/settings/presentation/view_model/settings_bloc.dart';
 import 'package:shikshalaya/features/test/presentation/view/quiz_screen.dart';
 import 'package:shikshalaya/features/test/presentation/view/quiz_sets_page.dart';
 import 'package:shikshalaya/features/test/presentation/view/test_screen.dart';
@@ -42,11 +45,12 @@ class HomeState extends Equatable {
           child: QuizSetsPage(),
         ),
         BlocProvider(
-          create: (context) => getIt<HomeCubit>(),
-          child: DashboardView(),
+          create: (context) => getIt<SettingsBloc>(),
+          child: ScraperPage(),
         ),
-        const Center(
-          child: Text('Account'),
+        BlocProvider(
+          create: (context) => getIt<SettingsBloc>(),
+          child: SettingsPage(),
         ),
       ],
       isLoading: false,
