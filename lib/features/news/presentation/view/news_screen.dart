@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shikshalaya/features/news/presentation/view/pdf_viewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'web_scraper.dart';
-import 'pdf_viewer.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ScraperPage extends StatefulWidget {
