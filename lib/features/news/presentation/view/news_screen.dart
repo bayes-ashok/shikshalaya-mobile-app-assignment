@@ -12,7 +12,7 @@ class ScraperPage extends StatefulWidget {
 
 class _ScraperPageState extends State<ScraperPage> {
   final WebScraper scraper = WebScraper();
-  static const int pageSize = 10;
+  static const int pageSize = 10; // Number of items per page
 
   late final PagingController<int, Map<String, String>> _pagingController = PagingController(
     getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
@@ -28,8 +28,11 @@ class _ScraperPageState extends State<ScraperPage> {
   Future<List<Map<String, String>>> fetchData(int pageKey) async {
     try {
       List<Map<String, String>> data = await scraper.scrapeLinks('https://psc.gov.np/');
+
+      // Determine if it's the last page
       final isLastPage = (pageKey + pageSize) >= data.length;
       final newItems = data.sublist(pageKey, isLastPage ? data.length : pageKey + pageSize);
+
       return newItems;
     } catch (error) {
       return Future.error(error);
@@ -83,28 +86,25 @@ class _ScraperPageState extends State<ScraperPage> {
           fetchNextPage: fetchNextPage,
           builderDelegate: PagedChildBuilderDelegate<Map<String, String>>(
             itemBuilder: (context, item, index) => Card(
-              elevation: 3,
-              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0), // Add padding inside the card
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // Align text to start
+              elevation: 2,
+              margin: EdgeInsets.symmetric(vertical: 6),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: ListTile(
+                title: Row(
                   children: [
-                    Text(
-                      item['name'] ?? "No Name",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                    Expanded(
+                      child: Text(
+                        item['name'] ?? "No Name",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        textAlign: TextAlign.justify,
                       ),
-                      textAlign: TextAlign.justify, // Justify the text
                     ),
-                    SizedBox(height: 8), // Add spacing
                   ],
                 ),
+                trailing: Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey[600]),
+                onTap: () => openLink(item['url'] ?? "", item['name'] ?? "Document"),
               ),
+
             ),
           ),
         ),
