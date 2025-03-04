@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class QuestionNavigation extends StatelessWidget {
+class QuizNavigation extends StatelessWidget {
   final int totalQuestions;
   final int currentIndex;
   final VoidCallback onNext;
   final VoidCallback onPrevious;
   final Function(int) onJumpTo;
 
-  const QuestionNavigation({
+  const QuizNavigation({
     super.key,
     required this.totalQuestions,
     required this.currentIndex,
@@ -21,13 +21,12 @@ class QuestionNavigation extends StatelessWidget {
     return Column(
       children: [
         Wrap(
-          alignment: WrapAlignment.center,
           spacing: 8,
           children: List.generate(
             totalQuestions,
                 (index) => ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: index == currentIndex ? Colors.orange : Colors.grey[300],
+                backgroundColor: index == currentIndex ? Colors.orange : Colors.blueAccent,
               ),
               onPressed: () => onJumpTo(index),
               child: Text("${index + 1}"),
@@ -37,13 +36,15 @@ class QuestionNavigation extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ElevatedButton(
+            FloatingActionButton(
+              backgroundColor: Colors.blueAccent,
               onPressed: currentIndex > 0 ? onPrevious : null,
-              child: const Text("Previous"),
+              child: const Icon(Icons.arrow_back_ios),
             ),
-            ElevatedButton(
+            FloatingActionButton(
+              backgroundColor: Colors.blueAccent,
               onPressed: currentIndex < totalQuestions - 1 ? onNext : null,
-              child: const Text("Next"),
+              child: const Icon(Icons.arrow_forward_ios),
             ),
           ],
         ),

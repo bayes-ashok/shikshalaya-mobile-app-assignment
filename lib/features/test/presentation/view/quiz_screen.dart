@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:shikshalaya/features/test/presentation/view/result_page.dart';
-
-import '../../domain/entity/question_entity.dart';
+import '../widget/progress_bar.dart';
 import '../widget/question_card.dart';
 import '../widget/quiz_navigation.dart';
+import '../widget/timer_widget.dart';
+import 'result_page.dart';
+import '../../domain/entity/question_entity.dart';
 
 class QuizPage extends StatefulWidget {
   final List<Question> questions;
@@ -16,7 +17,7 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> {
   int currentQuestionIndex = 0;
-  Map<int, int?> selectedAnswers = {}; // Stores selected answer for each question
+  Map<int, int?> selectedAnswers = {};
 
   void _selectAnswer(int index) {
     setState(() {
@@ -56,7 +57,12 @@ class _QuizPageState extends State<QuizPage> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => ResultPage(score: correctAnswers, total: widget.questions.length),
+        builder: (context) => ResultPage(
+          score: correctAnswers,
+          total: widget.questions.length,
+          questions: widget.questions,
+          selectedAnswers: selectedAnswers,
+        ),
       ),
     );
   }
@@ -64,20 +70,27 @@ class _QuizPageState extends State<QuizPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Question ${currentQuestionIndex + 1}")),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text("Question ${currentQuestionIndex + 1}"),
+        backgroundColor: Colors.blueAccent,
+      ),
       body: Column(
         children: [
+          ProgressBar(currentIndex: currentQuestionIndex, total: widget.questions.length),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: QuestionCard(
-                question: widget.questions[currentQuestionIndex],
-                selectedAnswer: selectedAnswers[currentQuestionIndex],
-                onAnswerSelected: _selectAnswer,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: QuestionCard(
+                  question: widget.questions[currentQuestionIndex],
+                  selectedAnswer: selectedAnswers[currentQuestionIndex],
+                  onAnswerSelected: _selectAnswer,
+                ),
               ),
             ),
           ),
-          QuestionNavigation(
+          QuizNavigation(
             totalQuestions: widget.questions.length,
             currentIndex: currentQuestionIndex,
             onNext: _goToNext,
@@ -85,10 +98,15 @@ class _QuizPageState extends State<QuizPage> {
             onJumpTo: _jumpToQuestion,
           ),
           Padding(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: ElevatedButton(
               onPressed: _submitQuiz,
-              child: const Text("Submit Quiz"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.greenAccent,
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                minimumSize: const Size(double.infinity, 50),
+              ),
+              child: const Text("Submit Quiz", style: TextStyle(fontSize: 18)),
             ),
           ),
         ],
