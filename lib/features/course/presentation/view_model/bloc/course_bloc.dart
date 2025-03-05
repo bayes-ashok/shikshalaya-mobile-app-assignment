@@ -1,10 +1,8 @@
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/features/course/domain/entity/student_course_entity.dart';
 import 'package:shikshalaya/features/payment/presentation/view_model/payment_bloc.dart';
-
 import '../../../../../core/error/failure.dart';
 import '../../../../payment/presentation/view/khalti_screen.dart';
 import '../../../domain/entity/course_entity.dart';
@@ -94,7 +92,7 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     });
 
     on<NavigateKhaltiDemoEvent>((event, emit) {
-      String pidx = "x4QJyjf4buXCeZksYNaBP8";
+      String pidx = "jWCEqw6u7YcrDxnQidYHBB";
       Navigator.push(
         event.context,
         MaterialPageRoute(

@@ -19,6 +19,7 @@ class HomeState extends Equatable {
   final List<Widget> views;
   final bool isLoading;
   final bool isSuccess;
+  final bool isLoggingOut;
   final List<CourseEntity> courses;
   final List<CourseEntity> filteredCourses; // Filtered courses list
   final String? selectedCategory; // Selected category for filtering
@@ -29,6 +30,7 @@ class HomeState extends Equatable {
     required this.views,
     required this.isLoading,
     required this.isSuccess,
+    required this.isLoggingOut,
     required this.courses,
     required this.filteredCourses,
     this.selectedCategory,
@@ -63,6 +65,8 @@ class HomeState extends Equatable {
       filteredCourses: [], // Initially same as courses
       selectedCategory: 'all', // Default to "all"
       errorMessage: null,
+      isLoggingOut:false,
+
     );
   }
 
@@ -71,6 +75,7 @@ class HomeState extends Equatable {
     List<Widget>? views,
     bool? isLoading,
     bool? isSuccess,
+    bool? isLoggingOut,
     List<CourseEntity>? courses,
     List<CourseEntity>? filteredCourses,
     String? selectedCategory,
@@ -82,6 +87,7 @@ class HomeState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       isSuccess: isSuccess ?? this.isSuccess,
       courses: courses ?? this.courses,
+      isLoggingOut: isLoggingOut ?? this.isLoggingOut,
       filteredCourses: filteredCourses ?? this.filteredCourses,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       errorMessage: errorMessage,
@@ -98,5 +104,6 @@ class HomeState extends Equatable {
     filteredCourses,
     selectedCategory,
     errorMessage,
+    isLoggingOut
   ];
 }

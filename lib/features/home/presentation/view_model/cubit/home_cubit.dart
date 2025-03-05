@@ -52,21 +52,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(selectedIndex: index));
   }
 
-  void logout(BuildContext context) {
-    Future.delayed(const Duration(seconds: 2), () async {
-      if (context.mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BlocProvider.value(
-              value: getIt<LoginBloc>(),
-              child: LoginView(),
-            ),
-          ),
-        );
-      }
-    });
-  }
+
 
   void navigateToCourseDetail(BuildContext context, String courseId) {
     Navigator.push(
