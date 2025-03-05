@@ -1,26 +1,28 @@
 part of 'settings_bloc.dart';
 
 abstract class SettingsState extends Equatable {
-  const SettingsState();
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class SettingsInitial extends SettingsState {}
-class SettingsLoaded extends SettingsState {
-  final Map<String, dynamic> settings;
 
-  const SettingsLoaded(this.settings);
+class SettingsLoading extends SettingsState {}
+
+class SettingsLoaded extends SettingsState {
+  final UserProfileEntity userProfile;
+
+  SettingsLoaded({required this.userProfile});
 
   @override
-  List<Object> get props => [settings];
+  List<Object?> get props => [userProfile];
 }
 
-class SettingsUpdated extends SettingsState {
-  final Map<String, dynamic> updatedSettings;
+class SettingsError extends SettingsState {
+  final String message;
 
-  const SettingsUpdated(this.updatedSettings);
+  SettingsError({required this.message});
 
   @override
-  List<Object> get props => [updatedSettings];
+  List<Object?> get props => [message];
 }
