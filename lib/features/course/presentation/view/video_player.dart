@@ -12,8 +12,9 @@ class VideoPlayerScreen extends StatefulWidget {
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-  late FlickManager flickManager;
+  FlickManager? flickManager;
   double? videoAspectRatio; // Store video aspect ratio
+  bool isError = false; // Track errors
 
   @override
   void initState() {
@@ -22,22 +23,32 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Future<void> _initializeVideo() async {
-    VideoPlayerController controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    try {
+      final VideoPlayerController controller =
+      VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
 
-    controller.initialize().then((_) {
+      await controller.initialize();
       setState(() {
         videoAspectRatio = controller.value.aspectRatio; // Get actual aspect ratio
+        flickManager = FlickManager(videoPlayerController: controller);
+        isError = false;
       });
-    }).catchError((error) {
-      print('Error loading video: $error');
-    });
 
-    flickManager = FlickManager(videoPlayerController: controller);
+      // Trigger full-screen mode after UI is built
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        flickManager?.flickControlManager?.enterFullscreen();
+      });
+    } catch (error) {
+      setState(() {
+        isError = true;
+      });
+      print('Error loading video: $error');
+    }
   }
 
   @override
   void dispose() {
-    flickManager.dispose();
+    flickManager?.dispose();
     super.dispose();
   }
 
@@ -46,12 +57,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Video Player")),
       body: Center(
-        child: videoAspectRatio != null
+        child: isError
+            ? const Text("Failed to load video", style: TextStyle(color: Colors.red, fontSize: 16))
+            : videoAspectRatio != null && flickManager != null
             ? AspectRatio(
           aspectRatio: videoAspectRatio!,
-          child: FlickVideoPlayer(flickManager: flickManager),
+          child: FlickVideoPlayer(flickManager: flickManager!),
         )
-            : const CircularProgressIndicator(), // Show loader until initialized
+            : const Center(child: CircularProgressIndicator()),
       ),
     );
   }

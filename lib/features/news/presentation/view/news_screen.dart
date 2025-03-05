@@ -3,7 +3,6 @@ import 'package:shikshalaya/features/news/presentation/view/pdf_viewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'web_scraper.dart';
-import 'package:shimmer/shimmer.dart';
 
 class ScraperPage extends StatefulWidget {
   @override
@@ -39,36 +38,15 @@ class _ScraperPageState extends State<ScraperPage> {
     }
   }
 
-  void openLink(String url, String title) {
+  void openLink(String url) {
     if (url.endsWith('.pdf')) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => PDFViewerPage(url: url, title: title)),
+        MaterialPageRoute(builder: (context) => PDFViewerPage(url: url, title: "PDF Viewer")),
       );
     } else {
       launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     }
-  }
-
-  Widget _buildShimmerLoader() {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        child: Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            height: 80,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -79,34 +57,99 @@ class _ScraperPageState extends State<ScraperPage> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: PagingListener(
-        controller: _pagingController,
-        builder: (context, state, fetchNextPage) => PagedListView<int, Map<String, String>>(
-          state: state,
-          fetchNextPage: fetchNextPage,
-          builderDelegate: PagedChildBuilderDelegate<Map<String, String>>(
-            itemBuilder: (context, item, index) => Card(
-              elevation: 2,
-              margin: EdgeInsets.symmetric(vertical: 6),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: ListTile(
-                title: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item['name'] ?? "No Name",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        textAlign: TextAlign.justify,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFf0faff),
+              Color(0xFFe6f7ff),
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            // Catchy and unique message section with justified content
+            Container(
+              padding: EdgeInsets.all(20),
+              margin: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, 4),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "🚨 Attention! 🚨",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "Below are the latest updates and news from the PSC (Public Service Commission). Stay informed about the latest announcements, job openings, and more!",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white70,
+                    ),
+                    textAlign: TextAlign.justify, // Justifying the content
+                  ),
+                ],
+              ),
+            ),
+            // Pagination content area
+            Expanded(
+              child: PagingListener(
+                controller: _pagingController,
+                builder: (context, state, fetchNextPage) => PagedListView<int, Map<String, String>>(
+                  state: state,
+                  fetchNextPage: fetchNextPage,
+                  builderDelegate: PagedChildBuilderDelegate<Map<String, String>>(
+                    itemBuilder: (context, item, index) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                      child: Card(
+                        elevation: 10,
+                        shadowColor: Colors.grey.withOpacity(0.4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: GestureDetector(
+                          onTap: () => openLink(item['url'] ?? ""),
+                          child: Container(
+                            padding: EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              item['name'] ?? "No Name",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.black,
+                              ),
+                              textAlign: TextAlign.justify, // Justifying card content as well
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-                trailing: Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey[600]),
-                onTap: () => openLink(item['url'] ?? "", item['name'] ?? "Document"),
               ),
-
             ),
-          ),
+          ],
         ),
       ),
     );

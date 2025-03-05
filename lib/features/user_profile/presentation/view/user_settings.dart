@@ -25,7 +25,6 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2,
@@ -38,16 +37,30 @@ class _SettingsPageState extends State<SettingsPage> {
           style: TextStyle(color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),
         ),
       ),
-      body: BlocBuilder<SettingsBloc, SettingsState>(
-        builder: (context, state) {
-          if (state is SettingsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is SettingsLoaded) {
-            return _buildSettingsContent(state);
-          } else {
-            return const Center(child: Text("Error loading profile."));
-          }
-        },
+      // Wrap the entire body in a Container with gradient
+      body: Container(
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFf0faff),
+              Color(0xFFe6f7ff),
+            ],
+          ),
+        ),
+        child: BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, state) {
+            if (state is SettingsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is SettingsLoaded) {
+              return _buildSettingsContent(state);
+            } else {
+              return const Center(child: Text("Error loading profile."));
+            }
+          },
+        ),
       ),
     );
   }
@@ -59,6 +72,7 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 20),
           _profileCard(state),
           const SizedBox(height: 20),
+          // Wrap the card container inside another Container to maintain gradient
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(15),

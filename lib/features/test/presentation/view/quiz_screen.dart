@@ -72,44 +72,109 @@ class _QuizPageState extends State<QuizPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Question ${currentQuestionIndex + 1}"),
-        backgroundColor: Colors.blueAccent,
+        title: Text("Question ${currentQuestionIndex + 1}",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        backgroundColor: Colors.white,
+        elevation: 10,
+        centerTitle: true,
       ),
-      body: Column(
-        children: [
-          ProgressBar(currentIndex: currentQuestionIndex, total: widget.questions.length),
-          Expanded(
-            child: Center(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Progress Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: ProgressBar(
+                currentIndex: currentQuestionIndex,
+                total: widget.questions.length,
+              ),
+            ),
+
+            // Timer Widget
+            TimerWidget(
+              totalTime: 60, // Total quiz time in seconds
+              onTimeUp: () {
+                _submitQuiz();
+              },
+            ),
+
+            // Question Card with Prev/Next Arrows
+            Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: QuestionCard(
-                  question: widget.questions[currentQuestionIndex],
-                  selectedAnswer: selectedAnswers[currentQuestionIndex],
-                  onAnswerSelected: _selectAnswer,
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Stack(
+                  children: [
+                    // Left Arrow (Previous Button)
+                    Positioned(
+                      left: 10,
+                      top: MediaQuery.of(context).size.height * 0.3,
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_left, size: 30, color: Colors.blueAccent),
+                        onPressed: _goToPrevious,
+                      ),
+                    ),
+                    // Right Arrow (Next Button)
+                    Positioned(
+                      right: 10,
+                      top: MediaQuery.of(context).size.height * 0.3,
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_right, size: 30, color: Colors.blueAccent),
+                        onPressed: _goToNext,
+                      ),
+                    ),
+                    // Centered Question Card
+                    Center(
+                      child: QuestionCard(
+                        question: widget.questions[currentQuestionIndex],
+                        selectedAnswer: selectedAnswers[currentQuestionIndex],
+                        onAnswerSelected: _selectAnswer,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-          QuizNavigation(
-            totalQuestions: widget.questions.length,
-            currentIndex: currentQuestionIndex,
-            onNext: _goToNext,
-            onPrevious: _goToPrevious,
-            onJumpTo: _jumpToQuestion,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: ElevatedButton(
-              onPressed: _submitQuiz,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.greenAccent,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                minimumSize: const Size(double.infinity, 50),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: QuizNavigation(
+                totalQuestions: widget.questions.length,
+                currentIndex: currentQuestionIndex,
+                onNext: _goToNext,
+                onPrevious: _goToPrevious,
+                onJumpTo: _jumpToQuestion,
               ),
-              child: const Text("Submit Quiz", style: TextStyle(fontSize: 18)),
             ),
-          ),
-        ],
+
+            // Submit Button (Blue with White Text)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: ElevatedButton(
+                onPressed: _submitQuiz,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue, // Blue color for the button
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  shadowColor: Colors.blue,
+                  elevation: 5,
+                ),
+                child: const Text(
+                  "Submit Quiz",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white, // White text
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
