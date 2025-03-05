@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shikshalaya/core/common/common_snackbar.dart';
 import 'package:shikshalaya/features/auth/domain/entity/auth_entity.dart';
 import 'package:shikshalaya/features/user_profile/domain/entity/user_profile_entity.dart';
@@ -26,6 +27,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         super(SettingsInitial()) {
     on<LoadUserProfile>(_onLoadUserProfile);
     on<UpdateUserProfile>(_onUpdateUserProfile);
+    on<LogoutEvent>(_onLogout);
+
   }
 
   void _onLoadUserProfile(
@@ -104,5 +107,17 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             color: Colors.green);
       },
     );
+  }
+
+
+  void _onLogout(LogoutEvent event, Emitter<SettingsState> emit) async {
+    emit(LoggingOutState()); // 🔹 Emit logging out state
+
+    await Future.delayed(const Duration(seconds: 2)); // Simulate logout process
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear session data
+
+    emit(LoggedOutState()); // 🔹 Emit logged out state
   }
 }

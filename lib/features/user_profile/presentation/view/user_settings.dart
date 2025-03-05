@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shikshalaya/features/course/presentation/view_model/bloc/course_bloc.dart';
 import '../../../../app/di/di.dart';
+import '../../../auth/presentation/view/login_view.dart';
+import '../../../auth/presentation/view_model/login/login_bloc.dart';
 import '../../../course/presentation/view/student_course.dart';
 import '../view_model/settings_bloc.dart';
 import 'edit_profile_screen.dart';
@@ -16,28 +21,102 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool showTerms = false;
   bool showHelpCenter = false;
+  final LocalAuthentication auth = LocalAuthentication();
 
   @override
   void initState() {
     super.initState();
-    // 🔹 Load user profile when page opens
     BlocProvider.of<SettingsBloc>(context).add(LoadUserProfile());
   }
+
+  void _logout(BuildContext context) async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    // Clear user session data
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    // Wait for UI update before navigating
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Ensure the context is still mounted
+    if (!context.mounted) return;
+
+    // Navigate to LoginView
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BlocProvider.value(
+          value: getIt<LoginBloc>(),
+          child: const LoginView(),
+        ),
+      ),
+          (route) => false, // Remove all previous screens
+    );
+  }
+
+  /// Function to authenticate user using fingerprint
+  Future<bool> _authenticateWithBiometrics() async {
+    bool authenticated = false;
+    try {
+      authenticated = await auth.authenticate(
+        localizedReason: 'Scan your fingerprint to authenticate',
+        options: const AuthenticationOptions(
+          stickyAuth: true, // Keeps authentication session active
+          biometricOnly: true, // Restricts to biometric authentication only
+        ),
+      );
+    } on PlatformException catch (e) {
+      print("Authentication error: ${e.message}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Authentication failed: ${e.message}")),
+      );
+      return false;
+    }
+    return authenticated;
+  }
+
+
+  void _navigateToEditProfile(BuildContext context) async {
+    bool isAuthenticated = await _authenticateWithBiometrics();
+    if (isAuthenticated) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BlocProvider.value(
+            value: getIt<SettingsBloc>(),
+            child: const EditProfileScreen(),
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Authentication failed")),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text("User Profile"),
         backgroundColor: Colors.white,
-        elevation: 2,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Settings",
-          style: TextStyle(color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),
-        ),
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.1),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {},
+          ),
+        ],
       ),
       // Wrap the entire body in a Container with gradient
       body: Container(
@@ -95,20 +174,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   Icons.person,
                   "Edit Profile",
                   false,
-                      () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BlocProvider.value(
-                          value: getIt<SettingsBloc>(),
-                          child: const EditProfileScreen(),
-                        ),
-                      ),
-                    ).then((_) {
-                      // 🔹 Refresh profile when coming back from EditProfileScreen
-                      BlocProvider.of<SettingsBloc>(context).add(LoadUserProfile());
-                    });
-                  },
+                  () => _navigateToEditProfile(
+                      context), // 🔹 Call authentication function
                 ),
                 settingsOption(Icons.menu_book, "My Learning", false, () {
                   Navigator.push(
@@ -151,7 +218,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Check FAQs for common questions before reaching support."
                   ],
                 ),
-                settingsOption(Icons.exit_to_app, "Logout", false, () {}),
+                settingsOption(
+                  Icons.exit_to_app,
+                  "Logout",
+                  false,
+                      () => _logout(context), // 🔹 Directly call logout function
+                ),
               ],
             ),
           ),
@@ -189,7 +261,8 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               Text(
                 state.userProfile.fName,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 5),
               Text(
@@ -203,13 +276,21 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget settingsOption(IconData icon, String title, bool isExpandable, VoidCallback onTap) {
+  Widget settingsOption(
+      IconData icon, String title, bool isExpandable, VoidCallback onTap) {
     return Column(
       children: [
         ListTile(
           leading: Icon(icon, color: Colors.black),
-          title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black)),
-          trailing: isExpandable ? const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black) : null,
+          title: Text(title,
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black)),
+          trailing: isExpandable
+              ? const Icon(Icons.arrow_forward_ios,
+                  size: 16, color: Colors.black)
+              : null,
           onTap: onTap,
         ),
         Divider(height: 1, color: Colors.grey[300]),
@@ -228,19 +309,32 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         ListTile(
           leading: Icon(icon, color: Colors.black),
-          title: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black)),
-          trailing: Icon(isExpanded ? Icons.keyboard_arrow_down : Icons.arrow_forward_ios, size: 20, color: Colors.black),
+          title: Text(title,
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black)),
+          trailing: Icon(
+              isExpanded ? Icons.keyboard_arrow_down : Icons.arrow_forward_ios,
+              size: 20,
+              color: Colors.black),
           onTap: onTap,
         ),
         AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          padding: isExpanded ? const EdgeInsets.symmetric(horizontal: 15, vertical: 10) : EdgeInsets.zero,
+          padding: isExpanded
+              ? const EdgeInsets.symmetric(horizontal: 15, vertical: 10)
+              : EdgeInsets.zero,
           height: isExpanded ? null : 0,
           child: isExpanded
               ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: content.map((item) => Text("• $item", style: const TextStyle(fontSize: 14, color: Colors.black87))).toList(),
-          )
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: content
+                      .map((item) => Text("• $item",
+                          style: const TextStyle(
+                              fontSize: 14, color: Colors.black87)))
+                      .toList(),
+                )
               : null,
         ),
         Divider(height: 1, color: Colors.grey[300]),

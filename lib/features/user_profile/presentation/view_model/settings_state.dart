@@ -37,3 +37,7 @@ class SettingsError extends SettingsState {
   @override
   List<Object?> get props => [message];
 }
+
+class LoggingOutState extends SettingsState {}
+
+class LoggedOutState extends SettingsState {}

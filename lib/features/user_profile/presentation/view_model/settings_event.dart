@@ -28,3 +28,6 @@ class UpdateUserProfile extends SettingsEvent {
   @override
   List<Object?> get props => [fullName, phone, image, currentPassword, newPassword];
 }
+class LogoutEvent extends SettingsEvent {}
+
+
