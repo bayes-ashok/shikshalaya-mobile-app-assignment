@@ -18,6 +18,9 @@ import 'package:shikshalaya/features/payment/data/repository/payment_remote_repo
 import 'package:shikshalaya/features/test/data/repository/quiz_remote_repository.dart';
 import 'package:shikshalaya/features/test/domain/repository/quiz_repository.dart';
 import 'package:shikshalaya/features/test/presentation/view_model/bloc/quiz_bloc.dart';
+import 'package:shikshalaya/features/user_profile/data/data_source/remote_data_source/user_profile_remote_datasource.dart';
+import 'package:shikshalaya/features/user_profile/data/repository/user_profile_repository_impl.dart';
+import 'package:shikshalaya/features/user_profile/domain/repository/user_profile_repository.dart';
 import '../../features/course/data/data_source/remote_datasource/course_remote_datasource.dart';
 import '../../features/course/data/repository/course_remote_repository.dart';
 import '../../features/course/domain/repository/course_repository.dart';
@@ -32,6 +35,9 @@ import '../../features/payment/presentation/view_model/payment_bloc.dart';
 import '../../features/test/data/data_source/remote_datasource/quiz_remote_data_source.dart';
 import '../../features/test/domain/use_case/get_questions_usecase.dart';
 import '../../features/test/domain/use_case/get_quiz_sets_usecase.dart';
+import '../../features/user_profile/data/data_source/user_profile_datasource.dart';
+import '../../features/user_profile/domain/use_case/get_current_user_usecase.dart';
+import '../../features/user_profile/presentation/view_model/settings_bloc.dart';
 
 
 final getIt = GetIt.instance;
@@ -47,6 +53,7 @@ Future<void> initDependencies() async {
   await _initLoginDependencies();
   await _initTestDependencies();
   await _initNewsDependencies();
+  await _initSettingsDependencies();
 
 
   // await _initSplashScreenDependencies();
@@ -246,5 +253,27 @@ _initNewsDependencies() {
   // ✅ Register BLoC
   getIt.registerFactory<NewsBloc>(
         () => NewsBloc(fetchNewsUseCase: getIt<FetchNewsUseCase>()),
+  );
+}
+
+_initSettingsDependencies() {
+
+  // ✅ Register Remote Data Source
+  getIt.registerLazySingleton<UserProfileRemoteDataSourceImpl>(
+        () => UserProfileRemoteDataSourceImpl(dio: getIt<Dio>()),
+  );
+
+  // ✅ Register Repository
+  getIt.registerLazySingleton<UserProfileRepositoryImpl>(
+        () => UserProfileRepositoryImpl(remoteDataSource: getIt<UserProfileRemoteDataSourceImpl>()),
+  );
+
+  // ✅ Register Use Case
+  getIt.registerLazySingleton<GetCurrentUserUseCase>(
+        () => GetCurrentUserUseCase(getIt<UserProfileRepositoryImpl>(),
+            getIt<TokenSharedPrefs>()),
+  );
+  getIt.registerLazySingleton<SettingsBloc>(
+        () => SettingsBloc(getCurrentUserUseCase: getIt<GetCurrentUserUseCase>()),
   );
 }
