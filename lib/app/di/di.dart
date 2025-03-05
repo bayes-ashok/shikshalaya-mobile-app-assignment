@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shikshalaya/app/shared_prefs/token_shared_prefs.dart';
 import 'package:shikshalaya/core/network/api_service.dart';
@@ -21,6 +22,7 @@ import 'package:shikshalaya/features/test/presentation/view_model/bloc/quiz_bloc
 import 'package:shikshalaya/features/user_profile/data/data_source/remote_data_source/user_profile_remote_datasource.dart';
 import 'package:shikshalaya/features/user_profile/data/repository/user_profile_repository_impl.dart';
 import 'package:shikshalaya/features/user_profile/domain/repository/user_profile_repository.dart';
+import 'package:shikshalaya/features/user_profile/domain/use_case/update_user_profile_usecase.dart';
 import '../../features/course/data/data_source/remote_datasource/course_remote_datasource.dart';
 import '../../features/course/data/repository/course_remote_repository.dart';
 import '../../features/course/domain/repository/course_repository.dart';
@@ -273,7 +275,16 @@ _initSettingsDependencies() {
         () => GetCurrentUserUseCase(getIt<UserProfileRepositoryImpl>(),
             getIt<TokenSharedPrefs>()),
   );
+
+  // ✅ Register Use Case
+  getIt.registerLazySingleton<UpdateUserProfileUseCase>(
+        () => UpdateUserProfileUseCase(getIt<UserProfileRepositoryImpl>(),
+        getIt<TokenSharedPrefs>()),
+  );
+
   getIt.registerLazySingleton<SettingsBloc>(
-        () => SettingsBloc(getCurrentUserUseCase: getIt<GetCurrentUserUseCase>()),
+        () => SettingsBloc(getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
+          updateUserProfileUseCase: getIt<UpdateUserProfileUseCase>(),
+        ),
   );
 }
