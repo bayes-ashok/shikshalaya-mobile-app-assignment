@@ -17,7 +17,7 @@ class CourseRemoteDataSource implements ICourseDataSource{
   @override
   Future<List<CourseEntity>> getAllCourses() async {
     try {
-      final response = await _dio.get("http://10.0.2.2:8000/student/course/get");
+      Response response = await _dio.get(ApiEndpoints.getCourse);
 
       print("Full Response: ${jsonEncode(response.data)}"); // Log the full JSON data
 
@@ -60,7 +60,7 @@ class CourseRemoteDataSource implements ICourseDataSource{
   Future<CourseEntity> getCourseById(String courseId, String? token) async {
     print("hancy is fetching course with ID: $token");
     try {
-      final response = await _dio.get("http://10.0.2.2:8000/student/course/get/details/$courseId");
+      Response response = await _dio.get("${ApiEndpoints.getCourseById}/$courseId");
 
       print("hancy ko Response: ${jsonEncode(response.data)}"); // Log the full JSON data
 
@@ -96,7 +96,7 @@ class CourseRemoteDataSource implements ICourseDataSource{
     try {
       // Fetch user details using token
       final authResponse = await _dio.get(
-        "http://10.0.2.2:8000/auth/check-auth",
+        ApiEndpoints.authCheck,
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
 
@@ -109,7 +109,7 @@ class CourseRemoteDataSource implements ICourseDataSource{
 
           // Check enrollment status (No headers needed)
           final enrollResponse = await _dio.get(
-            "http://10.0.2.2:8000/student/course/purchase-info/$courseId/$userId",
+              "${ApiEndpoints.purchaseInfo}/$courseId/$userId"
           );
 
           if (enrollResponse.statusCode == 200) {
