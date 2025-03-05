@@ -24,29 +24,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   void initState() {
     super.initState();
     context.read<CourseBloc>().add(CheckEnrollmentEvent(widget.courseId));
-    _initializeVideo();
   }
 
-  Future<void> _initializeVideo() async {
-    String videoUrl =
-        'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4';
-
-    flickManager = FlickManager(
-      videoPlayerController:
-          VideoPlayerController.networkUrl(Uri.parse(videoUrl))
-            ..initialize().then((_) {
-              setState(() {});
-            }).catchError((error) {
-              print('Error loading video: $error');
-            }),
-    );
-  }
-
-  @override
-  void dispose() {
-    flickManager.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,10 +63,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 final course = state.course;
                 return Column(
                   children: [
-                    AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: FlickVideoPlayer(flickManager: flickManager),
-                    ),
+
                     Expanded(
                       child: TabBarView(
                         children: [
@@ -155,42 +131,82 @@ class OverviewTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    // Splitting objectives into a list
+    List<String> objectives = course.objectives.split(';');
+
+    return SingleChildScrollView(
       padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Course Title
           Text(
             course.title,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 8),
+
+          // Instructor Name
+          Text(
+            'By ${course.instructorName}',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+          SizedBox(height: 8),
+
+          // Course Meta Info
+          Text(
+            '${course.category} | ${course.level} | ${course.primaryLanguage}',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+          SizedBox(height: 12),
+
+          // Full Course Description - Justified
+          Text(
+            course.description,
+            style: TextStyle(fontSize: 15, height: 1.5),
+            textAlign: TextAlign.justify,
+          ),
+          SizedBox(height: 16),
+
+          // Course Objectives
+          Text(
+            'Course Objectives:',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 8),
-          Text('By ${course.instructorName}'),
-          SizedBox(height: 8),
-          Text(
-            '${course.category} | ${course.level} | ${course.primaryLanguage}',
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-          SizedBox(height: 8),
-          Text(
-            course.description,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          TextButton(
-            onPressed: () {},
-            child: Text('Read More'),
-          ),
-          SizedBox(height: 8),
+
+          // Bulleted List of Objectives
+          ...objectives.map((objective) => Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.check_circle, color: Colors.green, size: 18),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    objective.trim(),
+                    style: TextStyle(fontSize: 15, height: 1.4),
+                  ),
+                ),
+              ],
+            ),
+          )),
+
+          SizedBox(height: 16),
+
+          // Course Info (Students & Lectures)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InfoBox(
-                  icon: Icons.people,
-                  text: '${course.students.length} Enrolled'),
+                icon: Icons.people,
+                text: '${course.students.length} Enrolled',
+              ),
               InfoBox(
-                  icon: Icons.video_library,
-                  text: '${course.curriculum.length} Lectures'),
+                icon: Icons.video_library,
+                text: '${course.curriculum.length} Lectures',
+              ),
             ],
           ),
         ],
@@ -198,6 +214,7 @@ class OverviewTab extends StatelessWidget {
     );
   }
 }
+
 
 class LessonsTab extends StatelessWidget {
   final CourseEntity course;

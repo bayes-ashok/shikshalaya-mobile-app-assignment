@@ -5,8 +5,10 @@ import 'package:shikshalaya/features/course/data/data_source/course_data_source.
 
 import '../../../../../app/constants/api_endpoints.dart';
 import '../../../domain/entity/course_entity.dart';
+import '../../../domain/entity/student_course_entity.dart';
 import '../../dto/get_course_dto.dart';
 import '../../model/course_api_model.dart' show CourseApiModel;
+import '../../model/student_course_api_model.dart';
 
 
 class CourseRemoteDataSource implements ICourseDataSource{
@@ -85,11 +87,6 @@ class CourseRemoteDataSource implements ICourseDataSource{
     }
   }
 
-  @override
-  Future<void> enrollStudentInCourse(String courseId, String studentId) {
-    // TODO: implement enrollStudentInCourse
-    throw UnimplementedError();
-  }
 
   @override
   Future<bool> isEnrolled(String courseId, String token) async {
@@ -129,6 +126,75 @@ class CourseRemoteDataSource implements ICourseDataSource{
     } catch (e) {
       print("Error here: $e");
       throw Exception(e);
+    }
+  }
+
+  @override
+  Future<List<StudentCourseEntity>> getAllCoursesByStudent(String token) async {
+    try {
+      // Step 1: Get User ID using the token
+      final authResponse = await _dio.get(
+        ApiEndpoints.authCheck,
+        options: Options(headers: {"Authorization": "Bearer $token"}),
+      );
+
+      if (authResponse.statusCode == 200) {
+        var userData = authResponse.data['data']['user'];
+
+        if (userData != null && userData is Map<String, dynamic> && userData.containsKey('_id')) {
+          String userId = userData['_id'];
+          print("User ID: $userId");
+
+          // Step 2: Fetch Courses for the Student
+          final response = await _dio.get("${ApiEndpoints.getCourseByStudent}/$userId");
+
+          print("Full Response: ${jsonEncode(response.data)}"); // Debugging log
+
+          if (response.statusCode == 200) {
+            var courseData = response.data != null && response.data is Map<String, dynamic>
+                ? response.data['data']
+                : null;
+
+            if (courseData == null || courseData is! List) {
+              throw Exception("Invalid response structure: Missing or incorrect 'data' field");
+            }
+
+            if (courseData.isEmpty) {
+              print("No courses found for this student.");
+              return [];
+            }
+
+            List<StudentCourseEntity> courses = [];
+
+            for (var course in courseData) {
+              if (course is Map<String, dynamic>) {
+                try {
+                  final courseApiModel = StudentCourseApiModel.fromJson(course); // ✅ Changed from CourseApiModel
+                  courses.add(courseApiModel.toEntity()); // ✅ Convert to StudentCourseEntity
+                } catch (e) {
+                  print("Error converting course: $course | Error: $e");
+                }
+              } else {
+                print("Unexpected course format: $course");
+              }
+            }
+
+            return courses;
+          } else {
+            throw Exception("Failed to fetch student courses: ${response.statusCode} - ${response.statusMessage}");
+          }
+        } else {
+          throw Exception("Invalid user data format or missing user ID");
+        }
+      } else {
+        throw Exception("Failed to authenticate user: ${authResponse.statusMessage}");
+      }
+    } on DioException catch (e) {
+      print("Dio error: ${e.message}");
+      throw Exception("Network error: ${e.message}");
+    } catch (e) {
+      print("Unexpected error: $e");
+      throw Exception("Unexpected error: $e");
     }
   }
 }

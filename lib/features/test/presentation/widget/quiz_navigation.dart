@@ -26,7 +26,7 @@ class QuizNavigation extends StatelessWidget {
             totalQuestions,
                 (index) => ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: index == currentIndex ? Colors.orange : Colors.blueAccent,
+                backgroundColor: index == currentIndex ? Colors.yellow : Colors.lightGreen,
               ),
               onPressed: () => onJumpTo(index),
               child: Text("${index + 1}"),

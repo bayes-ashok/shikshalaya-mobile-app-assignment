@@ -3,7 +3,7 @@ class ApiEndpoints {
 
   static const Duration connectionTimeout = Duration(seconds: 1000);
   static const Duration receiveTimeout = Duration(seconds: 1000);
-  static const String baseUrl = "https://db7c-103-225-244-86.ngrok-free.app/";
+  static const String baseUrl = "http://10.0.2.2:5000/";
 
   // Auth Routes
   static const String login = "auth/login";
@@ -18,7 +18,9 @@ class ApiEndpoints {
   //course routes
   static const String getCourse = "student/course/get";
   static const String getCourseById = "student/course/get/details";
+  static const String getCourseByStudent = "student/courses-bought/get";
   static const String purchaseInfo = "student/course/purchase-info";
+
 
   //payment
   static const String enroll = "student/courses-bought/enroll";

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shikshalaya/features/course/presentation/view_model/bloc/course_bloc.dart';
 import '../../../../app/di/di.dart';
+import '../../../course/presentation/view/student_course.dart';
 import '../view_model/settings_bloc.dart';
 import 'edit_profile_screen.dart';
 
@@ -108,7 +110,17 @@ class _SettingsPageState extends State<SettingsPage> {
                     });
                   },
                 ),
-                settingsOption(Icons.menu_book, "My Learning", false, () {}),
+                settingsOption(Icons.menu_book, "My Learning", false, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider.value(
+                        value: getIt<CourseBloc>(),
+                        child: const CourseGridScreen(),
+                      ),
+                    ),
+                  );
+                }),
                 expandableOption(
                   icon: Icons.description,
                   title: "Terms & Conditions",

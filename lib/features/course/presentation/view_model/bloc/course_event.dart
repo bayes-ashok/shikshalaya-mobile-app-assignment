@@ -64,3 +64,7 @@ class CheckEnrollmentEvent extends CourseEvent {
   @override
   List<Object> get props => [courseId];
 }
+
+class FetchStudentCoursesEvent extends CourseEvent {
+  const FetchStudentCoursesEvent();
+}

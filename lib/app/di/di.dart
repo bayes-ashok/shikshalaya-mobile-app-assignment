@@ -12,6 +12,7 @@ import 'package:shikshalaya/features/auth/domain/use_case/login_usecase.dart';
 import 'package:shikshalaya/features/auth/domain/use_case/register_user_usecase.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/signup/register_bloc.dart';
+import 'package:shikshalaya/features/course/domain/use_case/get_student_course_usecase.dart';
 import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
 import 'package:shikshalaya/features/news/data/repository/news_repository.dart';
 import 'package:shikshalaya/features/payment/data/data_source/remote_data_source/payment_remote_data_source.dart';
@@ -135,6 +136,10 @@ _initHomeDependencies() async {
         () => GetAllCoursesUseCase(repository: getIt<CourseRepository>()),
   );
 
+  getIt.registerLazySingleton<GetStudentCoursesUseCase>(
+        () => GetStudentCoursesUseCase( getIt<CourseRepository>(),getIt<TokenSharedPrefs>()),
+  );
+
   getIt.registerLazySingleton<GetCourseByIdUseCase>(
         () => GetCourseByIdUseCase(getIt<CourseRepository>(),
         getIt<TokenSharedPrefs>()),
@@ -150,12 +155,14 @@ _initHomeDependencies() async {
   getIt.registerFactory<HomeCubit>(
         () => HomeCubit(getAllCoursesUseCase: getIt<GetAllCoursesUseCase>()),
   );
+  
+  
 
   // Register CourseBloc with its dependencies
   getIt.registerFactory<CourseBloc>(
         () => CourseBloc(getCourseByIdUseCase: getIt<GetCourseByIdUseCase>(),
         isEnrolledUseCase: getIt<IsEnrolledUseCase>(),
-          paymentBloc: getIt<PaymentBloc>(),
+          paymentBloc: getIt<PaymentBloc>(), getStudentCoursesUseCase: getIt<GetStudentCoursesUseCase>(),
 
         ),
   );

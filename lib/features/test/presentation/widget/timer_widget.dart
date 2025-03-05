@@ -31,7 +31,7 @@ class _TimerWidgetState extends State<TimerWidget> {
         });
 
         // Show alert when only 5 seconds are left
-        if (remainingTime == 5) {
+        if (remainingTime == 20) {
           _showTimeAlert();
         }
 
@@ -49,7 +49,7 @@ class _TimerWidgetState extends State<TimerWidget> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Time is Almost Up!"),
-          content: const Text("You only have 5 seconds left to complete the quiz."),
+          content: const Text("You only have 20 seconds left to complete the quiz."),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),

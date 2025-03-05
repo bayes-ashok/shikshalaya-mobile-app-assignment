@@ -155,6 +155,7 @@ class DashboardView extends StatelessWidget {
       builder: (context, state) {
         if (state.isLoading) {
           return Container(
+            width: double.infinity,
             height: MediaQuery.of(context).size.height * 0.6,
             alignment: Alignment.center,
             decoration: const BoxDecoration(
@@ -173,54 +174,58 @@ class DashboardView extends StatelessWidget {
 
         if (!state.isSuccess) {
           return Center(
-              child: Text(state.errorMessage ?? "Failed to load courses"));
+            child: Text(state.errorMessage ?? "Failed to load courses"),
+          );
         }
 
-        if (state.filteredCourses.isEmpty) { // Use filteredCourses here!
+        if (state.filteredCourses.isEmpty) {
           return Container(
             height: MediaQuery.of(context).size.height * 0.6,
             alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFFe1f5fe),
-                  Color(0xFFb3e5fc)
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
             child: const Text("No courses available"),
           );
         }
 
-        return GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ? 2 : 3,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: MediaQuery.of(context).orientation == Orientation.portrait ? 3 / 4 : 20 / 17,
+        return Container( // Ensure grid inherits background
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFf0faff),
+                Color(0xFFe6f7ff),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-          itemCount: state.filteredCourses.length, // Use filteredCourses here!
-          itemBuilder: (context, index) {
-            final course = state.filteredCourses[index]; // Use filteredCourses here!
-            return GestureDetector(
-              onTap: () {
-                context.read<HomeCubit>().navigateToCourseDetail(context, course.courseId);
-              },
-              child: buildCourseCard(
-                title: course.title,
-                subtitle: course.instructorName ?? "Unknown Instructor",
-                imagePath: course.image,
-              ),
-            );
-          },
+          child: GridView.builder(
+            physics: const BouncingScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ? 2 : 3,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: MediaQuery.of(context).orientation == Orientation.portrait ? 3 / 4 : 20 / 17,
+            ),
+            itemCount: state.filteredCourses.length,
+            itemBuilder: (context, index) {
+              final course = state.filteredCourses[index];
+              return GestureDetector(
+                onTap: () {
+                  context.read<HomeCubit>().navigateToCourseDetail(context, course.courseId);
+                },
+                child: buildCourseCard(
+                  title: course.title,
+                  subtitle: course.instructorName ?? "Unknown Instructor",
+                  imagePath: course.image,
+                ),
+              );
+            },
+          ),
         );
       },
     );
   }
+
 
 
 
@@ -231,25 +236,24 @@ class DashboardView extends StatelessWidget {
   }) {
     // Ensure title truncation with ".." if it exceeds the max limit
     String formattedTitle = title.length > 50 ? "${title.substring(0, 47)}.." : title;
-
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[100], // Light gray to contrast with whitish bg
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.5), // Stronger shadow
-            offset: const Offset(4, 4), // Moves shadow to bottom-right
-            blurRadius: 10, // More spread for softer effect
-          ),
-        ],
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFf0faff),
+            Color(0xFFe6f7ff),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
       ),
       child: Card(
-        elevation: 0, // Remove default elevation to keep custom shadow effect
+        elevation: 6, // Increased elevation for better shadow
+        shadowColor: Colors.black.withOpacity(0.2), // Subtle black shadow
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        color: Colors.grey[100], // Light contrast with white-ish background
+        color: Colors.white, // Stronger white color for better contrast
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -286,7 +290,7 @@ class DashboardView extends StatelessWidget {
                   style: const TextStyle(
                     fontFamily: 'OpenSans Bold',
                     fontSize: 14,
-                    color: Colors.black87, // Slightly softer black
+                    color: Colors.black, // Stronger black for better readability
                   ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -316,6 +320,4 @@ class DashboardView extends StatelessWidget {
       ),
     );
   }
-
-
 }
