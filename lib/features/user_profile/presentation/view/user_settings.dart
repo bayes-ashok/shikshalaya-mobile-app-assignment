@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../app/di/di.dart';
 import '../view_model/settings_bloc.dart';
 import 'edit_profile_screen.dart';
@@ -12,9 +11,16 @@ class SettingsPage extends StatefulWidget {
   _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderStateMixin {
+class _SettingsPageState extends State<SettingsPage> {
   bool showTerms = false;
   bool showHelpCenter = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // 🔹 Load user profile when page opens
+    BlocProvider.of<SettingsBloc>(context).add(LoadUserProfile());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,108 +31,111 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
         elevation: 2,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
+          onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           "Settings",
           style: TextStyle(color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.black),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            profileCard(),
-            const SizedBox(height: 20),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  settingsOption(
-                    Icons.person,
-                    "Edit Profile",
-                    false,
-                        () {
-                      print("✅ Button Clicked!"); // Should print when clicking Edit Profile
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BlocProvider.value(
-                            value: getIt<SettingsBloc>(),
-                            child: const EditProfileScreen(),
-                          ),
-                        ),
-                      );
-
-                        },
-                  ),
-
-                  settingsOption(Icons.menu_book, "My Learning", false, () {}),
-                  expandableOption(
-                    icon: Icons.description,
-                    title: "Terms & Conditions",
-                    isExpanded: showTerms,
-                    onTap: () {
-                      setState(() {
-                        showTerms = !showTerms;
-                      });
-                    },
-                    content: [
-                      "We may collect and use your data for analytics and service improvements.",
-                      "Your data may be shared with partnered institutions.",
-                      "All purchases are subject to our refund and cancellation policy."
-                    ],
-                  ),
-                  expandableOption(
-                    icon: Icons.headset_mic,
-                    title: "Help Center",
-                    isExpanded: showHelpCenter,
-                    onTap: () {
-                      setState(() {
-                        showHelpCenter = !showHelpCenter;
-                      });
-                    },
-                    content: [
-                      "For technical issues, contact support@loksewaapp.com.",
-                      "For enrollment and payment issues, reach out via our helpline.",
-                      "Check FAQs for common questions before reaching support."
-                    ],
-                  ),
-                  settingsOption(Icons.exit_to_app, "Logout", false, () {}),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
+      body: BlocBuilder<SettingsBloc, SettingsState>(
+        builder: (context, state) {
+          if (state is SettingsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is SettingsLoaded) {
+            return _buildSettingsContent(state);
+          } else {
+            return const Center(child: Text("Error loading profile."));
+          }
+        },
       ),
     );
   }
 
-  Widget profileCard() {
+  Widget _buildSettingsContent(SettingsLoaded state) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          _profileCard(state),
+          const SizedBox(height: 20),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                settingsOption(
+                  Icons.person,
+                  "Edit Profile",
+                  false,
+                      () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BlocProvider.value(
+                          value: getIt<SettingsBloc>(),
+                          child: const EditProfileScreen(),
+                        ),
+                      ),
+                    ).then((_) {
+                      // 🔹 Refresh profile when coming back from EditProfileScreen
+                      BlocProvider.of<SettingsBloc>(context).add(LoadUserProfile());
+                    });
+                  },
+                ),
+                settingsOption(Icons.menu_book, "My Learning", false, () {}),
+                expandableOption(
+                  icon: Icons.description,
+                  title: "Terms & Conditions",
+                  isExpanded: showTerms,
+                  onTap: () {
+                    setState(() {
+                      showTerms = !showTerms;
+                    });
+                  },
+                  content: [
+                    "We may collect and use your data for analytics and service improvements.",
+                    "Your data may be shared with partnered institutions.",
+                    "All purchases are subject to our refund and cancellation policy."
+                  ],
+                ),
+                expandableOption(
+                  icon: Icons.headset_mic,
+                  title: "Help Center",
+                  isExpanded: showHelpCenter,
+                  onTap: () {
+                    setState(() {
+                      showHelpCenter = !showHelpCenter;
+                    });
+                  },
+                  content: [
+                    "For technical issues, contact support@loksewaapp.com.",
+                    "For enrollment and payment issues, reach out via our helpline.",
+                    "Check FAQs for common questions before reaching support."
+                  ],
+                ),
+                settingsOption(Icons.exit_to_app, "Logout", false, () {}),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _profileCard(SettingsLoaded state) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(15),
@@ -143,34 +152,24 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
       ),
       child: Row(
         children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors.grey[300],
-                child: const Icon(Icons.person, size: 40, color: Colors.black),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.blueAccent,
-                  ),
-                  child: const Icon(Icons.edit, size: 16, color: Colors.white),
-                ),
-              ),
-            ],
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: Colors.grey[300],
+            child: const Icon(Icons.person, size: 40, color: Colors.black),
           ),
           const SizedBox(width: 15),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text("John Doe", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 5),
-              Text("johndoe@email.com", style: TextStyle(fontSize: 14, color: Colors.grey)),
+            children: [
+              Text(
+                state.userProfile.fName,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                state.userProfile.email,
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
             ],
           ),
         ],
