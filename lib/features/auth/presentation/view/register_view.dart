@@ -82,7 +82,7 @@ class _RegisterViewState extends State<RegisterView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.asset('assets/icons/LOGO-nobg.png', height: 125),
+                    SizedBox(height: 30,),
                     Text(
                       'Create New Account!',
                       style: TextStyle(
@@ -129,8 +129,8 @@ class _RegisterViewState extends State<RegisterView> {
                         );
                       },
                       child: SizedBox(
-                        height: 200,
-                        width: 200,
+                        height: 125,
+                        width: 125,
                         child: CircleAvatar(
                           radius: 50,
                           backgroundImage: _img != null
@@ -203,6 +203,7 @@ class _RegisterViewState extends State<RegisterView> {
                         ),
                       ],
                     ),
+                    SizedBox(height: 20,)
                   ],
                 ),
               ),

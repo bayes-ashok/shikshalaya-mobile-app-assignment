@@ -55,7 +55,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Video Player")),
+      appBar: AppBar(title: const Text("Video Lecture")),
       body: Center(
         child: isError
             ? const Text("Failed to load video", style: TextStyle(color: Colors.red, fontSize: 16))

@@ -71,13 +71,19 @@ class _QuizPageState extends State<QuizPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text("Question ${currentQuestionIndex + 1}",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        backgroundColor: Colors.white,
-        elevation: 10,
-        centerTitle: true,
-      ),
+        appBar: AppBar(
+          title: const Text("Practise Tests"),
+          backgroundColor: Color(0xFFf0faff),
+          elevation: 4,
+          shadowColor: Colors.black.withOpacity(0.1),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {},
+            ),
+          ],
+        ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(

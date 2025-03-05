@@ -13,7 +13,8 @@ class _ScraperPageState extends State<ScraperPage> {
   final WebScraper scraper = WebScraper();
   static const int pageSize = 10; // Number of items per page
 
-  late final PagingController<int, Map<String, String>> _pagingController = PagingController(
+  late final PagingController<int, Map<String, String>> _pagingController =
+      PagingController(
     getNextPageKey: (state) => (state.keys?.last ?? 0) + 1,
     fetchPage: (pageKey) => fetchData(pageKey),
   );
@@ -26,11 +27,13 @@ class _ScraperPageState extends State<ScraperPage> {
 
   Future<List<Map<String, String>>> fetchData(int pageKey) async {
     try {
-      List<Map<String, String>> data = await scraper.scrapeLinks('https://psc.gov.np/');
+      List<Map<String, String>> data =
+          await scraper.scrapeLinks('https://psc.gov.np/');
 
       // Determine if it's the last page
       final isLastPage = (pageKey + pageSize) >= data.length;
-      final newItems = data.sublist(pageKey, isLastPage ? data.length : pageKey + pageSize);
+      final newItems =
+          data.sublist(pageKey, isLastPage ? data.length : pageKey + pageSize);
 
       return newItems;
     } catch (error) {
@@ -42,7 +45,8 @@ class _ScraperPageState extends State<ScraperPage> {
     if (url.endsWith('.pdf')) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => PDFViewerPage(url: url, title: "PDF Viewer")),
+        MaterialPageRoute(
+            builder: (context) => PDFViewerPage(url: url, title: "PDF Viewer")),
       );
     } else {
       launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
@@ -53,9 +57,17 @@ class _ScraperPageState extends State<ScraperPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Web Scraper"),
+        title: const Text("News"),
+        backgroundColor: Colors.white,
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.1),
         centerTitle: true,
-        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -88,20 +100,12 @@ class _ScraperPageState extends State<ScraperPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "🚨 Attention! 🚨",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 10),
                   Text(
                     "Below are the latest updates and news from the PSC (Public Service Commission). Stay informed about the latest announcements, job openings, and more!",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.white70,
+                      color: Colors.white,
                     ),
                     textAlign: TextAlign.justify, // Justifying the content
                   ),
@@ -112,12 +116,15 @@ class _ScraperPageState extends State<ScraperPage> {
             Expanded(
               child: PagingListener(
                 controller: _pagingController,
-                builder: (context, state, fetchNextPage) => PagedListView<int, Map<String, String>>(
+                builder: (context, state, fetchNextPage) =>
+                    PagedListView<int, Map<String, String>>(
                   state: state,
                   fetchNextPage: fetchNextPage,
-                  builderDelegate: PagedChildBuilderDelegate<Map<String, String>>(
+                  builderDelegate:
+                      PagedChildBuilderDelegate<Map<String, String>>(
                     itemBuilder: (context, item, index) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 8),
                       child: Card(
                         elevation: 10,
                         shadowColor: Colors.grey.withOpacity(0.4),
@@ -139,7 +146,8 @@ class _ScraperPageState extends State<ScraperPage> {
                                 fontSize: 18,
                                 color: Colors.black,
                               ),
-                              textAlign: TextAlign.justify, // Justifying card content as well
+                              textAlign: TextAlign
+                                  .justify, // Justifying card content as well
                             ),
                           ),
                         ),
