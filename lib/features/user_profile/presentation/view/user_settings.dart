@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../app/di/di.dart';
+import '../view_model/settings_bloc.dart';
+import 'edit_profile_screen.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -59,7 +64,26 @@ class _SettingsPageState extends State<SettingsPage> with SingleTickerProviderSt
               ),
               child: Column(
                 children: [
-                  settingsOption(Icons.person, "Edit Profile", false, () {}),
+                  settingsOption(
+                    Icons.person,
+                    "Edit Profile",
+                    false,
+                        () {
+                      print("✅ Button Clicked!"); // Should print when clicking Edit Profile
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BlocProvider.value(
+                            value: getIt<SettingsBloc>(),
+                            child: const EditProfileScreen(),
+                          ),
+                        ),
+                      );
+
+                        },
+                  ),
+
                   settingsOption(Icons.menu_book, "My Learning", false, () {}),
                   expandableOption(
                     icon: Icons.description,

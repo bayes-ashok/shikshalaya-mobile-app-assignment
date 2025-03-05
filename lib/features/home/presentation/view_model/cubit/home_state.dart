@@ -4,14 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/features/home/presentation/view/dashboard_view.dart';
 import 'package:shikshalaya/features/home/presentation/view/home_view.dart';
 import 'package:shikshalaya/features/news/presentation/view/news_screen.dart';
-import 'package:shikshalaya/features/settings/presentation/view/user_settings.dart';
-import 'package:shikshalaya/features/settings/presentation/view_model/settings_bloc.dart';
+import 'package:shikshalaya/features/news/presentation/view_model/news_bloc.dart';
 import 'package:shikshalaya/features/test/presentation/view/quiz_screen.dart';
 import 'package:shikshalaya/features/test/presentation/view/quiz_sets_page.dart';
 import 'package:shikshalaya/features/test/presentation/view/test_screen.dart';
 import 'package:shikshalaya/features/test/presentation/view_model/bloc/quiz_bloc.dart';
+import 'package:shikshalaya/features/user_profile/presentation/view/user_settings.dart';
 import '../../../../../app/di/di.dart';
 import '../../../../course/domain/entity/course_entity.dart';
+import '../../../../news/presentation/view/user_settings.dart' show SettingsPage;
+import '../../../../user_profile/presentation/view_model/settings_bloc.dart';
 import 'home_cubit.dart';
 
 class HomeState extends Equatable {
@@ -45,7 +47,7 @@ class HomeState extends Equatable {
           child: QuizSetsPage(),
         ),
         BlocProvider(
-          create: (context) => getIt<SettingsBloc>(),
+          create: (context) => getIt<NewsBloc>(),
           child: ScraperPage(),
         ),
         BlocProvider(
