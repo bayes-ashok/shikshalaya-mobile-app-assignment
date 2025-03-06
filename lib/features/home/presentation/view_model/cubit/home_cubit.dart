@@ -10,6 +10,7 @@ class HomeCubit extends Cubit<HomeState> {
   HomeCubit() : super(HomeState.initial());
 
   void onTabTapped(int index) {
+    print(index);
     emit(state.copyWith(selectedIndex: index));
   }
 

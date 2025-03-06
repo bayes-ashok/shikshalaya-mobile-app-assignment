@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/features/home/presentation/view/home_view.dart';
 import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
-import 'package:shikshalaya/features/test/presentation/view/test_screen.dart';
-import 'package:shikshalaya/features/test/presentation/view_model/bloc/test_bloc.dart';
 
 import '../../app/di/di.dart';
-import '../../features/auth/presentation/view/login_view.dart';
-import '../../features/auth/presentation/view_model/login/login_bloc.dart';
 
 class BottomNav extends StatefulWidget {
   const BottomNav({super.key});
@@ -27,7 +23,7 @@ class _BottomNavState extends State<BottomNav> {
     // Navigate to different screens based on selected index
     switch (index) {
       case 0:
-      //
+        //
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -39,13 +35,12 @@ class _BottomNavState extends State<BottomNav> {
         );
         break;
       case 1:
-
         break;
       case 2:
-      // Navigate to News screen (if applicable)
+        // Navigate to News screen (if applicable)
         break;
       case 3:
-      // Navigate to Profile screen (if applicable)
+        // Navigate to Profile screen (if applicable)
         break;
     }
   }

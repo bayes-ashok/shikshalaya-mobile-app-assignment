@@ -121,7 +121,7 @@ class TestScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNav(),
+      // bottomNavigationBar: const BottomNav(),
     );
   }
 }

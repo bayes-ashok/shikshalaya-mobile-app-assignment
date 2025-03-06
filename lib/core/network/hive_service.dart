@@ -6,7 +6,7 @@ import 'package:shikshalaya/features/auth/data/model/auth_hive_model.dart';
 class HiveService {
   static Future<void> init() async {
     var directory = await getApplicationDocumentsDirectory();
-    var path = '${directory.path}shikshyalaya.db';
+    var path = '${directory.path}.shikshyalaya.db';
 
     Hive.init(path);
 

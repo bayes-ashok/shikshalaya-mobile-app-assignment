@@ -1,0 +1,2 @@
+E:/Mobile App Assignment/shikshalaya/android/app/.cxx/Debug/dh2y2r91/x86_64/CMakeFiles/edit_cache.dir
+E:/Mobile App Assignment/shikshalaya/android/app/.cxx/Debug/dh2y2r91/x86_64/CMakeFiles/rebuild_cache.dir

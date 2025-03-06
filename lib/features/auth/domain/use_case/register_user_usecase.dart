@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:shikshalaya/app/usecase/usecase.dart';
@@ -10,23 +12,25 @@ class RegisterUserParams extends Equatable {
   final String phone;
   final String email;
   final String password;
+  final String? image;
 
   const RegisterUserParams({
     required this.fname,
     required this.phone,
     required this.email,
     required this.password,
+    this.image,
   });
 
-  const RegisterUserParams.initial({
-    required this.fname,
-    required this.phone,
-    required this.email,
-    required this.password,
-  });
+  const RegisterUserParams.initial(
+      {required this.fname,
+      required this.phone,
+      required this.email,
+      required this.password,
+      this.image});
 
   @override
-  List<Object?> get props => [fname, phone, email, password];
+  List<Object?> get props => [fname, phone, email, password, image];
 }
 
 class RegisterUseCase implements UsecaseWithParams<void, RegisterUserParams> {
@@ -41,7 +45,28 @@ class RegisterUseCase implements UsecaseWithParams<void, RegisterUserParams> {
       phone: params.phone,
       email: params.email,
       password: params.password,
+      image: params.image,
     );
     return repository.registerStudent(authEntity);
+  }
+}
+
+class UploadImageParams {
+  final File file;
+
+  const UploadImageParams({
+    required this.file,
+  });
+}
+
+class UploadImageUsecase
+    implements UsecaseWithParams<String, UploadImageParams> {
+  final IAuthRepository _repository;
+
+  UploadImageUsecase(this._repository);
+
+  @override
+  Future<Either<Failure, String>> call(UploadImageParams params) {
+    return _repository.uploadProfilePicture(params.file);
   }
 }
