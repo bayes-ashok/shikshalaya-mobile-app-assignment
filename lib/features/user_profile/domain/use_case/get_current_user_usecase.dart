@@ -15,7 +15,6 @@ class GetCurrentUserUseCase implements UsecaseWithoutParams<UserProfileEntity> {
 
   @override
   Future<Either<Failure, UserProfileEntity>> call() async {
-    // Step 1: Retrieve token from shared preferences
     final tokenResult = await tokenSharedPrefs.getToken();
 
     return tokenResult.fold(
