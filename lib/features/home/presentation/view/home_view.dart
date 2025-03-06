@@ -6,7 +6,6 @@ import '../view_model/cubit/home_state.dart';
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
 
-  final bool _isDarkTheme = false;
 
   @override
   Widget build(BuildContext context) {

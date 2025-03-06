@@ -3,10 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/features/home/presentation/view/dashboard_view.dart';
 import 'package:shikshalaya/features/home/presentation/view/home_view.dart';
+import 'package:shikshalaya/features/home/presentation/view/news_screen.dart';
+import 'package:shikshalaya/features/settings/presentation/view/user_settings.dart';
+import 'package:shikshalaya/features/settings/presentation/view_model/settings_bloc.dart';
+import 'package:shikshalaya/features/test/presentation/view/quiz_screen.dart';
+import 'package:shikshalaya/features/test/presentation/view/quiz_sets_page.dart';
 import 'package:shikshalaya/features/test/presentation/view/test_screen.dart';
+import 'package:shikshalaya/features/test/presentation/view_model/bloc/quiz_bloc.dart';
 import '../../../../../app/di/di.dart';
 import '../../../../course/domain/entity/course_entity.dart';
-import '../../../../test/presentation/view_model/bloc/test_bloc.dart';
 import 'home_cubit.dart';
 
 class HomeState extends Equatable {
@@ -36,15 +41,16 @@ class HomeState extends Equatable {
           child: DashboardView(),
         ),
         BlocProvider(
-          create: (context) => getIt<TestBloc>(),
-          child: TestScreen(),
+          create: (context) => getIt<QuizBloc>(),
+          child: QuizSetsPage(),
         ),
         BlocProvider(
-          create: (context) => getIt<HomeCubit>(),
-          child: DashboardView(),
+          create: (context) => getIt<SettingsBloc>(),
+          child: ScraperPage(),
         ),
-        const Center(
-          child: Text('Account'),
+        BlocProvider(
+          create: (context) => getIt<SettingsBloc>(),
+          child: SettingsPage(),
         ),
       ],
       isLoading: false,
