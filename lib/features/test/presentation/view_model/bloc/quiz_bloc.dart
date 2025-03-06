@@ -26,32 +26,34 @@ class QuizBloc extends Bloc<QuizEvent, QuizState> {
   }
 
   void _onLoadQuizSets(
-      LoadQuizSets event,
-      Emitter<QuizState> emit,
-      ) async {
+    LoadQuizSets event,
+    Emitter<QuizState> emit,
+  ) async {
     emit(state.copyWith(isLoading: true));
     final result = await _getQuizSetsUseCase.call();
 
     result.fold(
-          (failure) => emit(state.copyWith(isLoading: false, isSuccess: false)),
-          (quizSets) {
-        emit(state.copyWith(isLoading: false, isSuccess: true, quizSets: quizSets));
+      (failure) => emit(state.copyWith(isLoading: false, isSuccess: false)),
+      (quizSets) {
+        emit(state.copyWith(
+            isLoading: false, isSuccess: true, quizSets: quizSets));
       },
     );
   }
 
   void _onLoadQuestions(
-      LoadQuestions event,
-      Emitter<QuizState> emit,
-      ) async {
+    LoadQuestions event,
+    Emitter<QuizState> emit,
+  ) async {
     emit(state.copyWith(isLoading: true));
-    final result = await _getQuestionsUseCase.call(GetQuestionsParams(quizSetId: event.quizSetId));
+    final result = await _getQuestionsUseCase
+        .call(GetQuestionsParams(quizSetId: event.quizSetId));
     result.fold(
-          (failure) => emit(state.copyWith(isLoading: false, isSuccess: false)),
-          (questions) {
-        emit(state.copyWith(isLoading: false, isSuccess: true, questions: questions));
+      (failure) => emit(state.copyWith(isLoading: false, isSuccess: false)),
+      (questions) {
+        emit(state.copyWith(
+            isLoading: false, isSuccess: true, questions: questions));
         // Navigate to the quiz question screen
-
       },
     );
   }

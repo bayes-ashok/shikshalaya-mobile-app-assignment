@@ -6,13 +6,13 @@ import 'package:shikshalaya/features/payment/presentation/view_model/payment_blo
 import '../../../../../core/error/failure.dart';
 import '../../../../payment/presentation/view/khalti_screen.dart';
 import '../../../domain/entity/course_entity.dart';
-import '../../../domain/use_case/course_usecase.dart';
+import '../../../domain/use_case/get_course_by_id_usecase.dart';
 import '../../../domain/use_case/get_student_course_usecase.dart';
+import '../../../domain/use_case/is_enrolled_usecase.dart';
 import '../../view/video_player.dart';
 
 part 'course_event.dart';
 part 'course_state.dart';
-
 
 class CourseBloc extends Bloc<CourseEvent, CourseState> {
   final GetCourseByIdUseCase _getCourseByIdUseCase;
@@ -30,7 +30,6 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
         _getStudentCoursesUseCase = getStudentCoursesUseCase,
         _paymentBloc = paymentBloc,
         super(CourseInitial()) {
-
     on<PrintCourseIdEvent>((event, emit) {
       print('CourseBloc: courseId is ${event.courseId}');
     });
@@ -38,14 +37,15 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
     on<CheckEnrollmentEvent>((event, emit) async {
       print("Checking enrollment status for course ${event.courseId}");
 
-      final result = await _isEnrolledUseCase(IsEnrolledParams(courseId: event.courseId));
+      final result =
+          await _isEnrolledUseCase(IsEnrolledParams(courseId: event.courseId));
 
       result.fold(
-            (failure) {
+        (failure) {
           print("Enrollment check failed: ${_mapFailureToMessage(failure)}");
           emit(CourseError(message: _mapFailureToMessage(failure)));
         },
-            (isEnrolled) {
+        (isEnrolled) {
           print("✅ Enrollment Status: $isEnrolled");
           emit(EnrollmentCheckedState(isEnrolled: isEnrolled));
 
@@ -59,14 +59,15 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
       print("Fetching course details...");
       emit(CourseLoading());
 
-      final result = await _getCourseByIdUseCase(GetCourseByIdParams(courseId: event.courseId));
+      final result = await _getCourseByIdUseCase(
+          GetCourseByIdParams(courseId: event.courseId));
 
       result.fold(
-            (failure) {
+        (failure) {
           print("Course fetch failed: ${_mapFailureToMessage(failure)}");
           emit(CourseError(message: _mapFailureToMessage(failure)));
         },
-            (course) {
+        (course) {
           print("✅ Course fetched successfully: ${course.title}");
           emit(CourseLoaded(course: course));
         },
@@ -80,11 +81,12 @@ class CourseBloc extends Bloc<CourseEvent, CourseState> {
       final result = await _getStudentCoursesUseCase();
 
       result.fold(
-            (failure) {
-          print("Fetching student courses failed: ${_mapFailureToMessage(failure)}");
+        (failure) {
+          print(
+              "Fetching student courses failed: ${_mapFailureToMessage(failure)}");
           emit(CourseError(message: _mapFailureToMessage(failure)));
         },
-            (courses) {
+        (courses) {
           print("✅ Student courses fetched successfully: ${courses.length}");
           emit(StudentCoursesLoaded(courses: courses));
         },

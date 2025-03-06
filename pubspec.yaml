@@ -66,6 +66,8 @@ dependencies:
   shimmer: ^3.0.0
   local_auth: ^2.3.0
   sensors_plus: ^6.1.1
+  bloc_test: ^9.1.7
+  network_image_mock: ^2.1.1
 
 dev_dependencies:
   flutter_test:

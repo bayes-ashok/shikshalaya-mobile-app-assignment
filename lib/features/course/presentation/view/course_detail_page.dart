@@ -1,10 +1,7 @@
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shikshalaya/features/payment/presentation/view_model/payment_bloc.dart';
-import 'package:video_player/video_player.dart';
 import '../../../../core/common/common_snackbar.dart';
-import '../../../payment/presentation/view/khalti_screen.dart';
 import '../view_model/bloc/course_bloc.dart';
 import '../../domain/entity/course_entity.dart';
 
@@ -18,14 +15,13 @@ class CourseDetailPage extends StatefulWidget {
 
 class _CourseDetailPageState extends State<CourseDetailPage> {
   late FlickManager flickManager;
-  bool? isEnrolled =true; // Static enrollment status
+  bool? isEnrolled = true; // Static enrollment status
 
   @override
   void initState() {
     super.initState();
     context.read<CourseBloc>().add(CheckEnrollmentEvent(widget.courseId));
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +59,6 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 final course = state.course;
                 return Column(
                   children: [
-
                     Expanded(
                       child: TabBarView(
                         children: [
@@ -86,40 +81,40 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         bottomNavigationBar: isEnrolled ?? false
             ? null
             : BlocBuilder<CourseBloc, CourseState>(
-          builder: (context, state) {
-            if (state is CourseLoaded) {
-              final course = state.course; // ✅ Fetch course from state
-              return Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: () {
-                    context.read<CourseBloc>().add(
-                      NavigateKhaltiDemoEvent(
-                        context: context,
-                        course: course, // Pass course ID
+                builder: (context, state) {
+                  if (state is CourseLoaded) {
+                    final course = state.course; // ✅ Fetch course from state
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () {
+                          context.read<CourseBloc>().add(
+                                NavigateKhaltiDemoEvent(
+                                  context: context,
+                                  course: course, // Pass course ID
+                                ),
+                              );
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(builder: (context) => const KhaltiSDKDemo()),
+                          // );
+                        },
+                        child: Text(
+                          'GET ENROLL',
+                          style: TextStyle(fontSize: 18),
+                        ),
                       ),
                     );
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(builder: (context) => const KhaltiSDKDemo()),
-                    // );
-                  },
-                  child: Text(
-                    'GET ENROLL',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-              );
-            }
-            return SizedBox(); // If course data isn't available, return an empty widget
-          },
-        ),
+                  }
+                  return SizedBox(); // If course data isn't available, return an empty widget
+                },
+              ),
       ),
     );
   }
@@ -177,21 +172,21 @@ class OverviewTab extends StatelessWidget {
 
           // Bulleted List of Objectives
           ...objectives.map((objective) => Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 18),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    objective.trim(),
-                    style: TextStyle(fontSize: 15, height: 1.4),
-                  ),
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green, size: 18),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        objective.trim(),
+                        style: TextStyle(fontSize: 15, height: 1.4),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          )),
+              )),
 
           SizedBox(height: 16),
 
@@ -214,7 +209,6 @@ class OverviewTab extends StatelessWidget {
     );
   }
 }
-
 
 class LessonsTab extends StatelessWidget {
   final CourseEntity course;

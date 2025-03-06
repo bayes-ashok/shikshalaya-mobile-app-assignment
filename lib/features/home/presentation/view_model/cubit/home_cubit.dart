@@ -4,7 +4,7 @@ import 'package:shikshalaya/app/di/di.dart';
 import 'package:shikshalaya/features/auth/presentation/view/login_view.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
 
-import '../../../../course/domain/use_case/course_usecase.dart';
+import '../../../../course/domain/use_case/get_all_course.dart';
 import '../../../../course/presentation/view/course_detail_page.dart';
 import '../../../../course/presentation/view_model/bloc/course_bloc.dart';
 import '../../../../payment/presentation/view_model/payment_bloc.dart';
@@ -13,8 +13,7 @@ import 'home_state.dart';
 class HomeCubit extends Cubit<HomeState> {
   final GetAllCoursesUseCase getAllCoursesUseCase;
 
-  HomeCubit({required this.getAllCoursesUseCase})
-      : super(HomeState.initial()) {
+  HomeCubit({required this.getAllCoursesUseCase}) : super(HomeState.initial()) {
     // Automatically fetch courses when the cubit is created.
     fetchCourses();
   }
@@ -25,7 +24,7 @@ class HomeCubit extends Cubit<HomeState> {
 
     final result = await getAllCoursesUseCase();
     result.fold(
-          (failure) {
+      (failure) {
         print("Fetch failed: $failure");
         emit(state.copyWith(
           isLoading: false,
@@ -33,7 +32,7 @@ class HomeCubit extends Cubit<HomeState> {
           errorMessage: "Failed to fetch courses",
         ));
       },
-          (courses) {
+      (courses) {
         print("Fetched courses: ${courses.length}");
 
         emit(state.copyWith(
@@ -51,8 +50,6 @@ class HomeCubit extends Cubit<HomeState> {
     print("Tab selected: $index");
     emit(state.copyWith(selectedIndex: index));
   }
-
-
 
   void navigateToCourseDetail(BuildContext context, String courseId) {
     Navigator.push(

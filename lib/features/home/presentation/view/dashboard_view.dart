@@ -20,9 +20,7 @@ class DashboardView extends StatefulWidget {
 }
 
 class _DashboardViewState extends State<DashboardView> {
-  AccelerometerEvent? _accelerometerEvent;
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
-  String _shakeMessage = "Shake your phone!";
   final double _shakeThreshold =
       20.0; // Adjust this value to detect shakes properly
 
@@ -34,12 +32,12 @@ class _DashboardViewState extends State<DashboardView> {
       accelerometerEventStream().listen(
         (AccelerometerEvent event) {
           setState(() {
-            _accelerometerEvent = event;
             _detectShake(event);
           });
         },
         onError: (e) {
           showDialog(
+              // ignore: use_build_context_synchronously
               context: context,
               builder: (context) {
                 return const AlertDialog(
@@ -55,7 +53,8 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   void _detectShake(AccelerometerEvent event) async {
-    double magnitude = sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+    double magnitude =
+        sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
     print("Shake detected with magnitude: $magnitude");
 
     if (magnitude > _shakeThreshold) {
@@ -94,7 +93,7 @@ class _DashboardViewState extends State<DashboardView> {
                 child: const LoginView(),
               ),
             ),
-                (route) => false, // Remove all previous screens
+            (route) => false, // Remove all previous screens
           );
         }
       });
@@ -102,15 +101,11 @@ class _DashboardViewState extends State<DashboardView> {
       // Reset the shake message after delay
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
-          setState(() {
-            _shakeMessage = "Shake your phone!";
-          });
+          setState(() {});
         }
       });
     }
   }
-
-
 
   @override
   void dispose() {
@@ -233,13 +228,15 @@ class _DashboardViewState extends State<DashboardView> {
                   _buildFilterChip(
                     label: 'Nayab Subba',
                     isSelected: state.selectedCategory == 'nayab-subba',
-                    onSelected: () => homeCubit.filterCoursesByLevel('nayab-subba'),
+                    onSelected: () =>
+                        homeCubit.filterCoursesByLevel('nayab-subba'),
                   ),
                   const SizedBox(width: 8),
                   _buildFilterChip(
                     label: 'Kharidar',
                     isSelected: state.selectedCategory == 'kharidar',
-                    onSelected: () => homeCubit.filterCoursesByLevel('kharidar'),
+                    onSelected: () =>
+                        homeCubit.filterCoursesByLevel('kharidar'),
                   ),
                 ],
               ),
@@ -366,10 +363,12 @@ class _DashboardViewState extends State<DashboardView> {
     required String imagePath,
   }) {
     String formattedTitle =
-    title.length > 50 ? "${title.substring(0, 47)}.." : title;
+        title.length > 50 ? "${title.substring(0, 47)}.." : title;
 
-    bool isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-    double cardHeight = isPortrait ? 250 : 100; // Adjust card height for landscape
+    bool isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+    double cardHeight =
+        isPortrait ? 250 : 100; // Adjust card height for landscape
     double imageHeight = isPortrait ? 140 : 110; // Maintain aspect ratio
 
     return Container(
@@ -404,7 +403,8 @@ class _DashboardViewState extends State<DashboardView> {
                 child: Image.network(
                   imagePath,
                   width: double.infinity,
-                  fit: BoxFit.contain, // Ensure full visibility without cropping
+                  fit:
+                      BoxFit.contain, // Ensure full visibility without cropping
                 ),
               ),
             ),
@@ -445,6 +445,4 @@ class _DashboardViewState extends State<DashboardView> {
       ),
     );
   }
-
-
 }
