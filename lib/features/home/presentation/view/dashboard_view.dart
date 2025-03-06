@@ -159,7 +159,12 @@ class _DashboardViewState extends State<DashboardView> {
                 children: [
                   _buildSearchBar(),
                   const SizedBox(height: 16),
-                  _buildFilterChips(context),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildFilterChips(context),
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   const Text(
                     'Explore Courses',
@@ -206,32 +211,37 @@ class _DashboardViewState extends State<DashboardView> {
       builder: (context, state) {
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildFilterChip(
-                label: 'All',
-                isSelected: state.selectedCategory == 'all',
-                onSelected: () => homeCubit.filterCoursesByLevel('all'),
-              ),
-              const SizedBox(width: 8),
-              _buildFilterChip(
-                label: 'Officer',
-                isSelected: state.selectedCategory == 'section-officer',
-                onSelected: () =>
-                    homeCubit.filterCoursesByLevel('section-officer'),
-              ),
-              const SizedBox(width: 8),
-              _buildFilterChip(
-                label: 'Nayab Subba',
-                isSelected: state.selectedCategory == 'nayab-subba',
-                onSelected: () => homeCubit.filterCoursesByLevel('nayab-subba'),
-              ),
-              const SizedBox(width: 8),
-              _buildFilterChip(
-                label: 'Kharidar',
-                isSelected: state.selectedCategory == 'kharidar',
-                onSelected: () => homeCubit.filterCoursesByLevel('kharidar'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildFilterChip(
+                    label: 'All',
+                    isSelected: state.selectedCategory == 'all',
+                    onSelected: () => homeCubit.filterCoursesByLevel('all'),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    label: 'Officer',
+                    isSelected: state.selectedCategory == 'section-officer',
+                    onSelected: () =>
+                        homeCubit.filterCoursesByLevel('section-officer'),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    label: 'Nayab Subba',
+                    isSelected: state.selectedCategory == 'nayab-subba',
+                    onSelected: () => homeCubit.filterCoursesByLevel('nayab-subba'),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    label: 'Kharidar',
+                    isSelected: state.selectedCategory == 'kharidar',
+                    onSelected: () => homeCubit.filterCoursesByLevel('kharidar'),
+                  ),
+                ],
               ),
             ],
           ),
@@ -355,11 +365,15 @@ class _DashboardViewState extends State<DashboardView> {
     required String subtitle,
     required String imagePath,
   }) {
-    // Ensure title truncation with ".." if it exceeds the max limit
     String formattedTitle =
-        title.length > 50 ? "${title.substring(0, 47)}.." : title;
+    title.length > 50 ? "${title.substring(0, 47)}.." : title;
+
+    bool isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    double cardHeight = isPortrait ? 250 : 100; // Adjust card height for landscape
+    double imageHeight = isPortrait ? 140 : 110; // Maintain aspect ratio
+
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
             Color(0xFFf0faff),
@@ -370,73 +384,59 @@ class _DashboardViewState extends State<DashboardView> {
         ),
       ),
       child: Card(
-        elevation: 6, // Increased elevation for better shadow
-        shadowColor: Colors.black.withOpacity(0.2), // Subtle black shadow
+        elevation: 6,
+        shadowColor: Colors.black.withOpacity(0.2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        color: Colors.white, // Stronger white color for better contrast
+        color: Colors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Section
+            // Image Section with Full Visibility
             ClipRRect(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
               ),
-              child: Stack(
-                children: [
-                  Image.network(
-                    imagePath,
-                    height: 130,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                  Container(
-                    height: 130,
-                    width: double.infinity,
-                    color: Colors.black
-                        .withOpacity(0.3), // Slight overlay for readability
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 6),
-            // Title Section with Proper Truncation
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: SizedBox(
-                height: 42, // Space for 3 lines of text
-                child: Text(
-                  formattedTitle,
-                  style: const TextStyle(
-                    fontFamily: 'OpenSans Bold',
-                    fontSize: 14,
-                    color:
-                        Colors.black, // Stronger black for better readability
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+              child: AspectRatio(
+                aspectRatio: 16 / 9, // Maintain image's original aspect ratio
+                child: Image.network(
+                  imagePath,
+                  width: double.infinity,
+                  fit: BoxFit.contain, // Ensure full visibility without cropping
                 ),
               ),
             ),
-            const Spacer(),
-            // Subtitle Section
+            const SizedBox(height: 8),
+
+            // Title Section
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-              child: SizedBox(
-                height: 18, // Restrict subtitle height
-                child: Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontFamily: 'OpenSans Medium',
-                    fontSize: 12,
-                  ),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                formattedTitle,
+                style: const TextStyle(
+                  fontFamily: 'OpenSans Bold',
+                  fontSize: 14,
+                  color: Colors.black,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 4), // Reduce space
+
+            // Instructor Name Section (Tightly Aligned)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'OpenSans Medium',
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -445,4 +445,6 @@ class _DashboardViewState extends State<DashboardView> {
       ),
     );
   }
+
+
 }

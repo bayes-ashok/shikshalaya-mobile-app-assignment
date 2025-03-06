@@ -69,73 +69,81 @@ class _QuizPageState extends State<QuizPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    double cardWidth = isLandscape ? MediaQuery.of(context).size.width * 0.7 : double.infinity;
+
     return Scaffold(
       backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text("Practise Tests"),
-          backgroundColor: Color(0xFFf0faff),
-          elevation: 4,
-          shadowColor: Colors.black.withOpacity(0.1),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications),
-              onPressed: () {},
-            ),
-          ],
-        ),
+      appBar: AppBar(
+        title: const Text("Practice Tests"),
+        backgroundColor: const Color(0xFFf0faff),
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.1),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {},
+          ),
+        ],
+      ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Progress Bar
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               child: ProgressBar(
                 currentIndex: currentQuestionIndex,
                 total: widget.questions.length,
               ),
             ),
 
-            // Timer Widget
-            TimerWidget(
-              totalTime: 60, // Total quiz time in seconds
-              onTimeUp: () {
-                _submitQuiz();
-              },
+            // Timer Widget (Ensuring it doesn't take too much space)
+            SizedBox(
+              height: isLandscape ? 40 : 60,
+              child: TimerWidget(
+                totalTime: 60, // Total quiz time in seconds
+                onTimeUp: _submitQuiz,
+              ),
             ),
 
-            // Question Card with Prev/Next Arrows
+            // Question Card Section
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Stack(
+                  alignment: Alignment.center,
                   children: [
                     // Left Arrow (Previous Button)
                     Positioned(
-                      left: 10,
-                      top: MediaQuery.of(context).size.height * 0.3,
+                      left: 5,
+                      top: MediaQuery.of(context).size.height * (isLandscape ? 0.2 : 0.3),
                       child: IconButton(
-                        icon: Icon(Icons.arrow_left, size: 30, color: Colors.blueAccent),
+                        icon: const Icon(Icons.arrow_left, size: 30, color: Colors.blueAccent),
                         onPressed: _goToPrevious,
                       ),
                     ),
                     // Right Arrow (Next Button)
                     Positioned(
-                      right: 10,
-                      top: MediaQuery.of(context).size.height * 0.3,
+                      right: 5,
+                      top: MediaQuery.of(context).size.height * (isLandscape ? 0.2 : 0.3),
                       child: IconButton(
-                        icon: Icon(Icons.arrow_right, size: 30, color: Colors.blueAccent),
+                        icon: const Icon(Icons.arrow_right, size: 30, color: Colors.blueAccent),
                         onPressed: _goToNext,
                       ),
                     ),
-                    // Centered Question Card
+                    // Centered Question Card with Responsive Width
                     Center(
-                      child: QuestionCard(
-                        question: widget.questions[currentQuestionIndex],
-                        selectedAnswer: selectedAnswers[currentQuestionIndex],
-                        onAnswerSelected: _selectAnswer,
+                      child: SizedBox(
+                        width: cardWidth,
+                        child: QuestionCard(
+                          question: widget.questions[currentQuestionIndex],
+                          selectedAnswer: selectedAnswers[currentQuestionIndex],
+                          onAnswerSelected: _selectAnswer,
+                        ),
                       ),
                     ),
                   ],
@@ -143,8 +151,9 @@ class _QuizPageState extends State<QuizPage> {
               ),
             ),
 
+            // Navigation Buttons
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               child: QuizNavigation(
                 totalQuestions: widget.questions.length,
                 currentIndex: currentQuestionIndex,
@@ -154,27 +163,28 @@ class _QuizPageState extends State<QuizPage> {
               ),
             ),
 
-            // Submit Button (Blue with White Text)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: ElevatedButton(
-                onPressed: _submitQuiz,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Blue color for the button
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
+            // Submit Button (Ensuring Proper Width)
+            Center(
+              child: SizedBox(
+                width: isLandscape ? cardWidth : double.infinity,
+                child: ElevatedButton(
+                  onPressed: _submitQuiz,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    shadowColor: Colors.blue,
+                    elevation: 5,
                   ),
-                  shadowColor: Colors.blue,
-                  elevation: 5,
-                ),
-                child: const Text(
-                  "Submit Quiz",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white, // White text
+                  child: const Text(
+                    "Submit Quiz",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

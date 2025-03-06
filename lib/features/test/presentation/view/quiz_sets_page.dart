@@ -13,11 +13,11 @@ class QuizSetsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<QuizBloc>()..add(LoadQuizSets()), // Moved outside Column
+      create: (context) => getIt<QuizBloc>()..add(LoadQuizSets()),
       child: Scaffold(
         appBar: AppBar(
           title: const Text("Test"),
-          backgroundColor : Color(0xFFf0faff),
+          backgroundColor: Color(0xFFf0faff),
           elevation: 0,
           centerTitle: true,
           actions: [
@@ -30,10 +30,7 @@ class QuizSetsPage extends StatelessWidget {
         body: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Color(0xFFf0faff),
-                Color(0xFFe6f7ff),
-              ], // Light blue gradient
+              colors: [Color(0xFFf0faff), Color(0xFFe6f7ff)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -51,86 +48,95 @@ class QuizSetsPage extends StatelessWidget {
             },
             child: BlocBuilder<QuizBloc, QuizState>(
               builder: (context, state) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header Image
-                    Container(
-                      padding: const EdgeInsets.all(16.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(15),
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Image.asset(
-                            'assets/images/test.png',
-                            width: double.infinity,
-                            fit: BoxFit.cover,
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(), // Smooth scrolling
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(32.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Image.asset(
+                              'assets/images/test.png',
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    // Search Bar
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.search),
-                          hintText: 'Search Here',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: const BorderSide(color: Colors.white),
+
+
+                      // Search Bar
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.search),
+                            hintText: 'Search Here',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: const BorderSide(color: Colors.white),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 20),
                           ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 20),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
-                    // Filter Chips
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: const [
-                          FilterChipWidget(label: "Officer"),
-                          FilterChipWidget(label: "Nayab Subba"),
-                          FilterChipWidget(label: "Kharidar"),
-                        ],
+                      // Filter Chips
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: const [
+                            FilterChipWidget(label: "Officer"),
+                            FilterChipWidget(label: "Nayab Subba"),
+                            FilterChipWidget(label: "Kharidar"),
+                          ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 16),
 
-                    const SizedBox(height: 16),
-
-                    // Quiz Sets List
-                    Expanded( // FIX: Ensures list takes remaining space and prevents overflow
-                      child: state.isLoading
+                      // Quiz Sets List - Must be inside Expanded to prevent overflow
+                      state.isLoading
                           ? const Center(child: CircularProgressIndicator())
                           : (state.isSuccess && state.quizSets != null)
                           ? ListView.builder(
-                        padding: const EdgeInsets.all(16), // Ensures spacing from edges
+                        padding: const EdgeInsets.all(16),
+                        shrinkWrap: true, // Prevents overflow
+                        physics: const NeverScrollableScrollPhysics(), // Disable extra scroll inside `SingleChildScrollView`
                         itemCount: state.quizSets!.length,
                         itemBuilder: (context, index) {
                           return QuizSetCard(
                             quizSet: state.quizSets![index],
                             onTap: () {
                               context.read<QuizBloc>().add(
-                                LoadQuestions(quizSetId: state.quizSets![index].id),
+                                LoadQuestions(
+                                    quizSetId: state
+                                        .quizSets![index].id),
                               );
                             },
                           );
                         },
                       )
                           : const Center(
-                        child: Text(
-                          "No quizzes available",
-                          style: TextStyle(color: Colors.black54, fontSize: 18),
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            "No quizzes available",
+                            style: TextStyle(
+                                color: Colors.black54, fontSize: 18),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               },
             ),

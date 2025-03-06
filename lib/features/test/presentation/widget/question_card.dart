@@ -19,95 +19,115 @@ class QuestionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center, // ✅ Center the question
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Text(
-            question.question,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87, // Better visibility for the question text
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // ✅ 2x2 matrix layout for options
-            crossAxisSpacing: 15,
-            mainAxisSpacing: 15,
-            childAspectRatio: 3, // ✅ Adjust height of the options
-          ),
-          itemCount: question.options.length,
-          itemBuilder: (context, index) {
-            bool isSelected = selectedAnswer == index;
-            bool isCorrect = correctAnswer == index;
-            bool isWrong = isSelected && !isCorrect;
-            bool wasUnanswered = selectedAnswer == null;
-
-            Color backgroundColor;
-            Color borderColor;
-
-            if (reviewMode) {
-              if (isCorrect) {
-                backgroundColor = Colors.green.shade700; // ✅ Correct Answer - Green
-                borderColor = Colors.green.shade900; // Darker green for border
-              } else if (isWrong) {
-                backgroundColor = Colors.red.shade700; // ✅ Wrong Answer - Red
-                borderColor = Colors.red.shade900; // Darker red for border
-              } else if (wasUnanswered) {
-                backgroundColor = correctAnswer == index ? Colors.green.shade700 : Colors.grey.shade200; // Lighter grey for unanswered
-                borderColor = correctAnswer == index ? Colors.green.shade900 : Colors.grey.shade500; // Grey border for unanswered
-              } else {
-                backgroundColor = Colors.grey.shade200; // Default for unselected, lighter grey
-                borderColor = Colors.grey.shade500; // Grey border for unselected
-              }
-            } else {
-              backgroundColor = isSelected ? Colors.blue.shade700 : Colors.grey.shade200; // More subtle color when unselected
-              borderColor = isSelected ? Colors.blue.shade900 : Colors.grey.shade500; // Border color for unselected options
-            }
-
-            return GestureDetector(
-              onTap: reviewMode ? null : () => onAnswerSelected!(index),
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: backgroundColor, // ✅ Change button background color
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: borderColor, width: 2), // Border for unselected options
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: Offset(0, 4), // Changes position of shadow
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    question.options[index],
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87, // Ensures text visibility with background
-                    ),
-                    textAlign: TextAlign.center,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.7, // Prevent overflow
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16), // Keeps spacing consistent
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Prevents unnecessary stretching
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Question Text (No Background)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Text(
+                  question.question,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87, // Text remains visible
                   ),
                 ),
               ),
-            );
-          },
+              const SizedBox(height: 20),
+
+              // Options Grid
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return SizedBox(
+                    height: constraints.maxWidth / 2, // Limits height dynamically
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 15,
+                        mainAxisSpacing: 15,
+                        childAspectRatio: 3,
+                      ),
+                      itemCount: question.options.length,
+                      itemBuilder: (context, index) {
+                        bool isSelected = selectedAnswer == index;
+                        bool isCorrect = correctAnswer == index;
+                        bool isWrong = isSelected && !isCorrect;
+                        bool wasUnanswered = selectedAnswer == null;
+
+                        Color backgroundColor;
+                        Color borderColor;
+
+                        if (reviewMode) {
+                          if (isCorrect) {
+                            backgroundColor = Colors.green.shade700;
+                            borderColor = Colors.green.shade900;
+                          } else if (isWrong) {
+                            backgroundColor = Colors.red.shade700;
+                            borderColor = Colors.red.shade900;
+                          } else if (wasUnanswered) {
+                            backgroundColor = correctAnswer == index ? Colors.green.shade700 : Colors.grey.shade200;
+                            borderColor = correctAnswer == index ? Colors.green.shade900 : Colors.grey.shade500;
+                          } else {
+                            backgroundColor = Colors.grey.shade200;
+                            borderColor = Colors.grey.shade500;
+                          }
+                        } else {
+                          backgroundColor = isSelected ? Colors.blue.shade700 : Colors.grey.shade200;
+                          borderColor = isSelected ? Colors.blue.shade900 : Colors.grey.shade500;
+                        }
+
+                        return GestureDetector(
+                          onTap: reviewMode ? null : () => onAnswerSelected!(index),
+                          child: Container(
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: backgroundColor,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: borderColor, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  spreadRadius: 1,
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Text(
+                                question.options[index],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 }

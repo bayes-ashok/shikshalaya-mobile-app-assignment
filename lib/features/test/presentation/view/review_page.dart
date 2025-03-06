@@ -40,10 +40,13 @@ class _ReviewPageState extends State<ReviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final double cardWidth = isLandscape ? MediaQuery.of(context).size.width * 0.6 : MediaQuery.of(context).size.width * 0.9;
+
     return Scaffold(
       backgroundColor: Colors.blueGrey[50],
       appBar: AppBar(
-        title: const Text("Review Quiz", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: const Text("Revieww Quiz", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         backgroundColor: Colors.blueAccent,
         elevation: 10,
         centerTitle: true,
@@ -53,16 +56,11 @@ class _ReviewPageState extends State<ReviewPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Progress Bar can be added here if required, similar to QuizPage
-
-            // Timer Widget (if needed)
-            // TimerWidget(...)
-
-            // Question Card with Prev/Next Arrows
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Stack(
+                  alignment: Alignment.center,
                   children: [
                     // Left Arrow (Previous Button)
                     Positioned(
@@ -82,13 +80,16 @@ class _ReviewPageState extends State<ReviewPage> {
                         onPressed: _goToNext,
                       ),
                     ),
-                    // Centered Question Card
+                    // Centered Question Card with Responsive Width
                     Center(
-                      child: QuestionCard(
-                        question: widget.questions[currentQuestionIndex],
-                        selectedAnswer: widget.selectedAnswers[currentQuestionIndex],
-                        correctAnswer: widget.questions[currentQuestionIndex].correctAnswer,
-                        reviewMode: true,
+                      child: SizedBox(
+                        width: cardWidth,
+                        child: QuestionCard(
+                          question: widget.questions[currentQuestionIndex],
+                          selectedAnswer: widget.selectedAnswers[currentQuestionIndex],
+                          correctAnswer: widget.questions[currentQuestionIndex].correctAnswer,
+                          reviewMode: true,
+                        ),
                       ),
                     ),
                   ],
@@ -96,9 +97,9 @@ class _ReviewPageState extends State<ReviewPage> {
               ),
             ),
 
-            // Navigation Bar (Previous/Next Buttons)
+            // Navigation Bar
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20), // Moves navigation buttons up
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child: QuizNavigation(
                 totalQuestions: widget.questions.length,
                 currentIndex: currentQuestionIndex,
