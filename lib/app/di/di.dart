@@ -11,6 +11,12 @@ import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bl
 import 'package:shikshalaya/features/auth/presentation/view_model/signup/register_bloc.dart';
 import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
 import 'package:shikshalaya/features/test/presentation/view_model/bloc/test_bloc.dart';
+import '../../features/course/data/data_source/remote_datasource/course_remote_datasource.dart';
+import '../../features/course/data/repository/course_remote_repository.dart';
+import '../../features/course/domain/repository/course_repository.dart';
+import '../../features/course/domain/use_case/course_usecase.dart';
+import '../../features/course/presentation/view_model/bloc/course_bloc.dart';
+
 
 final getIt = GetIt.instance;
 
@@ -79,12 +85,39 @@ _initRegisterDependencies() {
     ),
   );
 }
-
 _initHomeDependencies() async {
-  getIt.registerFactory<HomeCubit>(
-    () => HomeCubit(),
+  // Register CourseRemoteDataSource first (adjust constructor parameters as needed)
+  getIt.registerLazySingleton<CourseRemoteDataSource>(
+        () => CourseRemoteDataSource(getIt<Dio>()),
   );
+
+  // Then, register the repository with its dependency
+  getIt.registerLazySingleton<ICourseRepository>(
+        () => CourseRepository(getIt<CourseRemoteDataSource>()),
+  );
+
+  // Register the GetAllCoursesUseCase with the repository dependency
+  getIt.registerLazySingleton<GetAllCoursesUseCase>(
+        () => GetAllCoursesUseCase(repository: getIt<ICourseRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetCourseByIdUseCase>(
+        () => GetCourseByIdUseCase(getIt<ICourseRepository>()),
+  );
+
+  // Finally, register HomeCubit with the GetAllCoursesUseCase
+  getIt.registerFactory<HomeCubit>(
+        () => HomeCubit(getAllCoursesUseCase: getIt<GetAllCoursesUseCase>()),
+  );
+
+  // Register CourseBloc with its dependencies
+  getIt.registerFactory<CourseBloc>(
+        () => CourseBloc(getCourseByIdUseCase: getIt<GetCourseByIdUseCase>()),
+  );
+
 }
+
+
 
 _initLoginDependencies() async {
   // getIt.registerLazySingleton<LoginUseCase>(

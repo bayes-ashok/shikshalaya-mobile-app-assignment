@@ -3,19 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/features/home/presentation/view/dashboard_view.dart';
 import 'package:shikshalaya/features/home/presentation/view/home_view.dart';
-import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
 import 'package:shikshalaya/features/test/presentation/view/test_screen.dart';
-
 import '../../../../../app/di/di.dart';
+import '../../../../course/domain/entity/course_entity.dart';
 import '../../../../test/presentation/view_model/bloc/test_bloc.dart';
+import 'home_cubit.dart';
 
 class HomeState extends Equatable {
   final int selectedIndex;
   final List<Widget> views;
+  final bool isLoading;
+  final bool isSuccess;
+  final List<CourseEntity> courses;
+  final String? errorMessage;
 
   const HomeState({
     required this.selectedIndex,
     required this.views,
+    required this.isLoading,
+    required this.isSuccess,
+    required this.courses,
+    this.errorMessage,
   });
 
   // Initial state
@@ -39,19 +47,31 @@ class HomeState extends Equatable {
           child: Text('Account'),
         ),
       ],
+      isLoading: false,
+      isSuccess: false,
+      courses: [],
+      errorMessage: null,
     );
   }
 
   HomeState copyWith({
     int? selectedIndex,
     List<Widget>? views,
+    bool? isLoading,
+    bool? isSuccess,
+    List<CourseEntity>? courses,
+    String? errorMessage,
   }) {
     return HomeState(
       selectedIndex: selectedIndex ?? this.selectedIndex,
       views: views ?? this.views,
+      isLoading: isLoading ?? this.isLoading,
+      isSuccess: isSuccess ?? this.isSuccess,
+      courses: courses ?? this.courses,
+      errorMessage: errorMessage,
     );
   }
 
   @override
-  List<Object?> get props => [selectedIndex, views];
+  List<Object?> get props => [selectedIndex, views, isLoading, isSuccess, courses, errorMessage];
 }

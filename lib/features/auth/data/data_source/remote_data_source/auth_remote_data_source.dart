@@ -27,7 +27,7 @@ class AuthRemoteDataSource implements IAuthDataSource {
       );
 
       if (response.statusCode == 200) {
-        final str = response.data['token'];
+        final str = response.data['data']['accessToken'];
         return str;
       } else {
         throw Exception(response.statusMessage);
@@ -45,7 +45,7 @@ class AuthRemoteDataSource implements IAuthDataSource {
       Response response = await _dio.post(
         ApiEndpoints.register,
         data: {
-          "fname": student.fName,
+          "fName": student.fName,
           "phone": student.phone,
           "image": student.image,
           "email": student.email,
@@ -53,7 +53,7 @@ class AuthRemoteDataSource implements IAuthDataSource {
         },
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         return;
       } else {
         throw Exception(response.statusMessage);
