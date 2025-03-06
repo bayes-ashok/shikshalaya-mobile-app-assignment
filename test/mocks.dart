@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shikshalaya/app/shared_prefs/token_shared_prefs.dart';
+import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
+import 'package:shikshalaya/features/auth/presentation/view_model/signup/register_bloc.dart';
 import 'package:shikshalaya/features/course/domain/repository/course_repository.dart';
 import 'package:shikshalaya/features/course/data/data_source/remote_datasource/course_remote_datasource.dart';
 import 'package:shikshalaya/features/course/domain/use_case/get_course_by_id_usecase.dart';
 import 'package:shikshalaya/features/course/domain/use_case/get_student_course_usecase.dart';
 import 'package:shikshalaya/features/course/domain/use_case/is_enrolled_usecase.dart';
+import 'package:shikshalaya/features/course/presentation/view_model/bloc/course_bloc.dart';
+import 'package:shikshalaya/features/news/presentation/view/web_scraper.dart';
 import 'package:shikshalaya/features/payment/data/data_source/remote_data_source/payment_remote_data_source.dart';
 import 'package:shikshalaya/features/payment/domain/repository/payment_repository.dart';
 import 'package:shikshalaya/features/payment/presentation/view_model/payment_bloc.dart';
@@ -58,3 +62,26 @@ class MockUpdateUserProfileUseCase extends Mock
     implements UpdateUserProfileUseCase {}
 
 class MockSharedPreferences extends Mock implements SharedPreferences {}
+
+//----------------------------Widget Test------------------------//
+class MockCourseBloc extends Mock implements CourseBloc {}
+
+class MockNavigatorObserver extends Mock implements NavigatorObserver {}
+
+class MockWebScraper extends Mock implements WebScraper {}
+
+class MockLoginBloc extends Mock implements LoginBloc {}
+
+class FakeNavigateRegisterScreenEvent extends Fake
+    implements NavigateRegisterScreenEvent {}
+
+class FakeNavigateHomeScreenEvent extends Fake
+    implements NavigateHomeScreenEvent {}
+
+class FakeLoginStudentEvent extends Fake implements LoginStudentEvent {}
+
+class MockRegisterBloc extends Mock implements RegisterBloc {}
+
+class FakeRegisterStudent extends Fake implements RegisterStudent {}
+
+class FakeLoadImage extends Fake implements LoadImage {}
