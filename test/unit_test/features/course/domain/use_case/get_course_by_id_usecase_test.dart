@@ -5,7 +5,7 @@ import 'package:shikshalaya/core/error/failure.dart';
 import 'package:shikshalaya/features/course/domain/entity/course_entity.dart';
 import 'package:shikshalaya/features/course/domain/use_case/get_course_by_id_usecase.dart';
 
-import '../../../../mocks.dart';
+import '../../../../../mocks.dart';
 
 void main() {
   late GetCourseByIdUseCase usecase;

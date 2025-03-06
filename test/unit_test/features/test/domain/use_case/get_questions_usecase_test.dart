@@ -5,7 +5,7 @@ import 'package:shikshalaya/core/error/failure.dart';
 import 'package:shikshalaya/features/test/domain/entity/question_entity.dart';
 import 'package:shikshalaya/features/test/domain/use_case/get_questions_usecase.dart';
 
-import '../../../../mocks.dart';
+import '../../../../../mocks.dart';
 
 void main() {
   late GetQuestionsUseCase usecase;
