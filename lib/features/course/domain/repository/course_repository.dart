@@ -7,10 +7,12 @@ import '../entity/course_entity.dart';
 
 abstract interface class ICourseRepository {
 
-  Future<Either<Failure, CourseEntity>> getCourseById(String courseId);
+  Future<Either<Failure, CourseEntity>> getCourseById(String courseId, String? token);
 
   Future<Either<Failure, List<CourseEntity>>> getAllCourses();
 
   Future<Either<Failure, void>> enrollStudentInCourse(String courseId, String studentId);
+
+  Future<Either<Failure, bool>> isEnrolled(String courseId, String token);
 
 }

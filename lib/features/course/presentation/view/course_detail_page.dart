@@ -1,9 +1,10 @@
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shikshalaya/features/payment/presentation/view_model/payment_bloc.dart';
 import 'package:video_player/video_player.dart';
 import '../../../../core/common/common_snackbar.dart';
-import '../../../payment/presentation/view/khalti_payment.dart';
+import '../../../payment/presentation/view/khalti_screen.dart';
 import '../view_model/bloc/course_bloc.dart';
 import '../../domain/entity/course_entity.dart';
 
@@ -17,12 +18,12 @@ class CourseDetailPage extends StatefulWidget {
 
 class _CourseDetailPageState extends State<CourseDetailPage> {
   late FlickManager flickManager;
-  bool isEnrolled = false; // Static enrollment status
+  bool? isEnrolled =true; // Static enrollment status
 
   @override
   void initState() {
     super.initState();
-    context.read<CourseBloc>().add(FetchCourseByIdEvent(widget.courseId));
+    context.read<CourseBloc>().add(CheckEnrollmentEvent(widget.courseId));
     _initializeVideo();
   }
 
@@ -62,50 +63,86 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             ],
           ),
         ),
-        body: BlocBuilder<CourseBloc, CourseState>(
+        body: BlocListener<CourseBloc, CourseState>(
+          listener: (context, state) {
+            if (state is EnrollmentCheckedState) {
+              setState(() {
+                isEnrolled =
+                    state.isEnrolled; // ✅ Safely update isEnrolled here
+              });
+            }
+          },
+          child: BlocBuilder<CourseBloc, CourseState>(
+            builder: (context, state) {
+              print("Current state: $state"); // Debugging output
+
+              if (state is CourseLoading) {
+                return Center(child: CircularProgressIndicator());
+              } else if (state is CourseError) {
+                return Center(child: Text("Error: ${state.message}"));
+              } else if (state is CourseLoaded) {
+                final course = state.course;
+                return Column(
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: FlickVideoPlayer(flickManager: flickManager),
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          OverviewTab(course: course),
+                          LessonsTab(
+                              course: course,
+                              isEnrolled:
+                                  isEnrolled ?? false), // ✅ Updated dynamically
+                          ReviewsTab(),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Center(child: Text(""));
+            },
+          ),
+        ),
+        bottomNavigationBar: isEnrolled ?? false
+            ? null
+            : BlocBuilder<CourseBloc, CourseState>(
           builder: (context, state) {
-            if (state is CourseLoading) {
-              return Center(child: CircularProgressIndicator());
-            } else if (state is CourseError) {
-              return Center(child: Text(state.message));
-            } else if (state is CourseLoaded) {
-              final course = state.course;
-              return Column(
-                children: [
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: FlickVideoPlayer(flickManager: flickManager),
-                  ),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        OverviewTab(course: course),
-                        LessonsTab(course: course, isEnrolled: isEnrolled),
-                        ReviewsTab(),
-                      ],
+            if (state is CourseLoaded) {
+              final course = state.course; // ✅ Fetch course from state
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                ],
+                  onPressed: () {
+                    context.read<CourseBloc>().add(
+                      NavigateKhaltiDemoEvent(
+                        context: context,
+                        course: course, // Pass course ID
+                      ),
+                    );
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(builder: (context) => const KhaltiSDKDemo()),
+                    // );
+                  },
+                  child: Text(
+                    'GET ENROLL',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
               );
             }
-            return Center(child: Text("Something went wrong!"));
+            return SizedBox(); // If course data isn't available, return an empty widget
           },
-        ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: () {},
-            child: Text(
-              'GET ENROLL',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
         ),
       ),
     );
@@ -175,7 +212,8 @@ class LessonsTab extends StatelessWidget {
       itemCount: course.curriculum.length,
       itemBuilder: (context, index) {
         final lecture = course.curriculum[index];
-        final isLocked = !lecture.freePreview && !isEnrolled; // Lock if not preview and not enrolled
+        final isLocked = !lecture.freePreview &&
+            !isEnrolled; // Lock if not preview and not enrolled
 
         // ✅ Ensure video URL starts with HTTPS
         final secureVideoUrl = lecture.videoUrl.startsWith('http:')
@@ -193,18 +231,19 @@ class LessonsTab extends StatelessWidget {
             } else {
               // ✅ Pass secure video URL to the Bloc if unlocked
               context.read<CourseBloc>().add(
-                NavigateToVideoPlayerEvent(
-                  context: context,
-                  videoUrl: secureVideoUrl, // ✅ Fixed URL
-                ),
-              );
+                    NavigateToVideoPlayerEvent(
+                      context: context,
+                      videoUrl: secureVideoUrl, // ✅ Fixed URL
+                    ),
+                  );
             }
           },
           child: Card(
             elevation: isLocked ? 1 : 4, // More elevation for unlocked videos
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
-              side: BorderSide(color: isLocked ? Colors.grey : Colors.blue, width: 1),
+              side: BorderSide(
+                  color: isLocked ? Colors.grey : Colors.blue, width: 1),
             ),
             child: Stack(
               children: [
@@ -234,7 +273,8 @@ class LessonsTab extends StatelessWidget {
                         ),
                       ),
                       if (isLocked)
-                        const Icon(Icons.lock, color: Colors.red), // Show lock icon if restricted
+                        const Icon(Icons.lock,
+                            color: Colors.red), // Show lock icon if restricted
                     ],
                   ),
                 ),
@@ -257,9 +297,6 @@ class LessonsTab extends StatelessWidget {
     );
   }
 }
-
-
-
 
 class ReviewsTab extends StatelessWidget {
   ReviewsTab({super.key});

@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shikshalaya/app/shared_prefs/token_shared_prefs.dart';
 import 'package:shikshalaya/core/network/api_service.dart';
 import 'package:shikshalaya/core/network/hive_service.dart';
 // import 'package:shikshalaya/features/auth/data/data_source/local_data_source/auth_local_data_source.dart';
@@ -10,12 +12,16 @@ import 'package:shikshalaya/features/auth/domain/use_case/register_user_usecase.
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/signup/register_bloc.dart';
 import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
+import 'package:shikshalaya/features/payment/data/data_source/remote_data_source/payment_remote_data_source.dart';
+import 'package:shikshalaya/features/payment/data/repository/payment_remote_repository.dart';
 import 'package:shikshalaya/features/test/presentation/view_model/bloc/test_bloc.dart';
 import '../../features/course/data/data_source/remote_datasource/course_remote_datasource.dart';
 import '../../features/course/data/repository/course_remote_repository.dart';
 import '../../features/course/domain/repository/course_repository.dart';
 import '../../features/course/domain/use_case/course_usecase.dart';
 import '../../features/course/presentation/view_model/bloc/course_bloc.dart';
+import '../../features/payment/domain/use_case/on_payment_complete.dart';
+import '../../features/payment/presentation/view_model/payment_bloc.dart';
 
 
 final getIt = GetIt.instance;
@@ -24,10 +30,13 @@ Future<void> initDependencies() async {
   // First initialize hive service
   await _initHiveService();
   await _initApiService();
+  await _initSharedPrefs();
   await _initHomeDependencies();
+  await _initPaymentDependencies();
   await _initRegisterDependencies();
   await _initLoginDependencies();
   await _initTestDependencies();
+
 
   // await _initSplashScreenDependencies();
 }
@@ -41,6 +50,12 @@ _initApiService() {
   getIt.registerLazySingleton<Dio>(
     () => ApiService(Dio()).dio,
   );
+}
+
+
+Future<void> _initSharedPrefs() async{
+  final sharedPrefs = await SharedPreferences.getInstance();
+  getIt.registerLazySingleton<SharedPreferences>(()=>sharedPrefs);
 }
 
 _initRegisterDependencies() {
@@ -91,18 +106,24 @@ _initHomeDependencies() async {
         () => CourseRemoteDataSource(getIt<Dio>()),
   );
 
-  // Then, register the repository with its dependency
-  getIt.registerLazySingleton<ICourseRepository>(
+  getIt.registerLazySingleton(
         () => CourseRepository(getIt<CourseRemoteDataSource>()),
   );
 
   // Register the GetAllCoursesUseCase with the repository dependency
   getIt.registerLazySingleton<GetAllCoursesUseCase>(
-        () => GetAllCoursesUseCase(repository: getIt<ICourseRepository>()),
+        () => GetAllCoursesUseCase(repository: getIt<CourseRepository>()),
   );
 
   getIt.registerLazySingleton<GetCourseByIdUseCase>(
-        () => GetCourseByIdUseCase(getIt<ICourseRepository>()),
+        () => GetCourseByIdUseCase(getIt<CourseRepository>(),
+        getIt<TokenSharedPrefs>()),
+  );
+
+
+  getIt.registerLazySingleton<IsEnrolledUseCase>(
+        () => IsEnrolledUseCase(getIt<CourseRepository>(),
+        getIt<TokenSharedPrefs>()),
   );
 
   // Finally, register HomeCubit with the GetAllCoursesUseCase
@@ -112,23 +133,47 @@ _initHomeDependencies() async {
 
   // Register CourseBloc with its dependencies
   getIt.registerFactory<CourseBloc>(
-        () => CourseBloc(getCourseByIdUseCase: getIt<GetCourseByIdUseCase>()),
+        () => CourseBloc(getCourseByIdUseCase: getIt<GetCourseByIdUseCase>(),
+        isEnrolledUseCase: getIt<IsEnrolledUseCase>(),
+          paymentBloc: getIt<PaymentBloc>(),
+
+        ),
   );
 
 }
 
+_initPaymentDependencies() async {
+
+  getIt.registerLazySingleton<PaymentRemoteDataSource>(
+        () => PaymentRemoteDataSource(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton(
+        () => PaymentRepository(getIt<PaymentRemoteDataSource>()),
+  );
+
+  // Register the GetAllCoursesUseCase with the repository dependency
+  getIt.registerLazySingleton<OnPaymentCompleteUseCase>(
+        () => OnPaymentCompleteUseCase(getIt<PaymentRepository>(), getIt<TokenSharedPrefs>()),
+  );
+
+  getIt.registerLazySingleton<PaymentBloc>(() => PaymentBloc(
+    paymentCompleteUseCase: getIt<OnPaymentCompleteUseCase>(), // Ensure this is registered first
+  ));
+}
+
+
 
 
 _initLoginDependencies() async {
-  // getIt.registerLazySingleton<LoginUseCase>(
-  //   () => LoginUseCase(
-  //     getIt<AuthLocalRepository>(),
-  //   ),
-  // );
+  getIt.registerLazySingleton<TokenSharedPrefs>(
+      ()=> TokenSharedPrefs(getIt<SharedPreferences>()),
+  );
 
   getIt.registerLazySingleton<LoginUseCase>(
     () => LoginUseCase(
       getIt<AuthRemoteRepository>(),
+      getIt<TokenSharedPrefs>(),
     ),
   );
 
@@ -146,9 +191,3 @@ _initTestDependencies() async {
     () => TestBloc(),
   );
 }
-
-// _initSplashScreenDependencies() async {
-//   getIt.registerFactory<SplashCubit>(
-//     () => SplashCubit(getIt<LoginBloc>()),
-//   );
-// }

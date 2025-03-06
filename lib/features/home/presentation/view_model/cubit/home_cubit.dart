@@ -7,6 +7,7 @@ import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bl
 import '../../../../course/domain/use_case/course_usecase.dart';
 import '../../../../course/presentation/view/course_detail_page.dart';
 import '../../../../course/presentation/view_model/bloc/course_bloc.dart';
+import '../../../../payment/presentation/view_model/payment_bloc.dart';
 import 'home_state.dart';
 
 
@@ -25,17 +26,17 @@ class HomeCubit extends Cubit<HomeState> {
     final result = await getAllCoursesUseCase();
     result.fold(
           (failure) {
-            print(failure);
-            emit(state.copyWith(
+        print(failure);
+        emit(state.copyWith(
           isLoading: false,
           isSuccess: false,
           errorMessage: "Failed to fetch courses",
         ));
       },
           (courses) {
-            print("courses $courses");
+        print("courses $courses");
 
-            emit(state.copyWith(
+        emit(state.copyWith(
           isLoading: false,
           isSuccess: true,
           courses: courses,
@@ -59,10 +60,11 @@ class HomeCubit extends Cubit<HomeState> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => BlocProvider.value(
-              value: getIt<LoginBloc>(),
-              child: LoginView(),
-            ),
+            builder: (context) =>
+                BlocProvider.value(
+                  value: getIt<LoginBloc>(),
+                  child: LoginView(),
+                ),
           ),
         );
       }
@@ -73,10 +75,14 @@ class HomeCubit extends Cubit<HomeState> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BlocProvider.value(
-          value: getIt<CourseBloc>(), // Using GetIt to provide the instance
-          child: CourseDetailPage(courseId: courseId),
-        ),
+        builder: (context) =>
+            MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: getIt<CourseBloc>()),
+                BlocProvider.value(value: getIt<PaymentBloc>()),
+              ],
+              child: CourseDetailPage(courseId: courseId),
+            ),
       ),
     );
   }

@@ -27,18 +27,20 @@ class FetchCourseByIdEvent extends CourseEvent {
   List<Object> get props => [courseId];
 }
 
+
 class NavigateKhaltiDemoEvent extends CourseEvent {
   final BuildContext context;
-  final Widget destination;
+  final CourseEntity course; // Keep courseId, remove destination
 
   const NavigateKhaltiDemoEvent({
     required this.context,
-    required this.destination,
+    required this.course,
   });
 
   @override
-  List<Object> get props => [context, destination];
+  List<Object> get props => [context, course];
 }
+
 
 
 class NavigateToVideoPlayerEvent extends CourseEvent {
@@ -54,3 +56,11 @@ class NavigateToVideoPlayerEvent extends CourseEvent {
   List<Object> get props => [context, videoUrl];
 }
 
+class CheckEnrollmentEvent extends CourseEvent {
+  final String courseId;
+
+  const CheckEnrollmentEvent(this.courseId);
+
+  @override
+  List<Object> get props => [courseId];
+}

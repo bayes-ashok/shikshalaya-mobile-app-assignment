@@ -23,7 +23,8 @@ class AuthRemoteRepository implements IAuthRepository {
       final token = await _authRemoteDataSource.loginStudent(email, password);
       return Right(token);
     } catch (e) {
-      return Left(ApiFailure(message: e.toString()));
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return Left(ApiFailure(message: errorMessage));
     }
   }
 
