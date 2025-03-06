@@ -54,3 +54,11 @@ class EnrollmentCheckedState extends CourseState {
   const EnrollmentCheckedState({required this.isEnrolled});
 }
 
+class StudentCoursesLoaded extends CourseState {
+  final List<StudentCourseEntity> courses;
+
+  const StudentCoursesLoaded({required this.courses});
+
+  @override
+  List<Object> get props => [courses];
+}

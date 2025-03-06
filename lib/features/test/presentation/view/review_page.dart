@@ -40,30 +40,66 @@ class _ReviewPageState extends State<ReviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final double cardWidth = isLandscape ? MediaQuery.of(context).size.width * 0.6 : MediaQuery.of(context).size.width * 0.9;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Review Quiz")),
+      backgroundColor: Colors.blueGrey[50],
+      appBar: AppBar(
+        title: const Text("Revieww Quiz", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        backgroundColor: Colors.blueAccent,
+        elevation: 10,
+        centerTitle: true,
+      ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              flex: 6,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: QuestionCard(
-                    question: widget.questions[currentQuestionIndex],
-                    selectedAnswer: widget.selectedAnswers[currentQuestionIndex],
-                    correctAnswer: widget.questions[currentQuestionIndex].correctAnswer,
-                    reviewMode: true,
-                  ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Left Arrow (Previous Button)
+                    Positioned(
+                      left: 10,
+                      top: MediaQuery.of(context).size.height * 0.3,
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_left, size: 30, color: Colors.blueAccent),
+                        onPressed: _goToPrevious,
+                      ),
+                    ),
+                    // Right Arrow (Next Button)
+                    Positioned(
+                      right: 10,
+                      top: MediaQuery.of(context).size.height * 0.3,
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_right, size: 30, color: Colors.blueAccent),
+                        onPressed: _goToNext,
+                      ),
+                    ),
+                    // Centered Question Card with Responsive Width
+                    Center(
+                      child: SizedBox(
+                        width: cardWidth,
+                        child: QuestionCard(
+                          question: widget.questions[currentQuestionIndex],
+                          selectedAnswer: widget.selectedAnswers[currentQuestionIndex],
+                          correctAnswer: widget.questions[currentQuestionIndex].correctAnswer,
+                          reviewMode: true,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 10), // ✅ Extra space before navigation
+
+            // Navigation Bar
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20), // ✅ Moves navigation buttons up
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child: QuizNavigation(
                 totalQuestions: widget.questions.length,
                 currentIndex: currentQuestionIndex,

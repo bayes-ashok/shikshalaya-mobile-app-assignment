@@ -21,7 +21,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       'title': 'Welcome to Shikshalaya',
       'description':
           'Your ultimate destination for Loksewa preparation. Learn from top institutes and get access to exclusive content.',
-      'image': 'assets/images/LOGO.png',
+      'image': 'assets/icons/LOGO-nobg.png',
     },
     {
       'title': 'Expert Video Lectures',
@@ -72,6 +72,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Expanded(

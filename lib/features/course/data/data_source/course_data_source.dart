@@ -1,3 +1,5 @@
+import 'package:shikshalaya/features/course/domain/entity/student_course_entity.dart';
+
 import '../../domain/entity/course_entity.dart';
 
 abstract interface class ICourseDataSource{
@@ -5,7 +7,7 @@ abstract interface class ICourseDataSource{
 
   Future<List<CourseEntity>> getAllCourses();
 
-  Future<void> enrollStudentInCourse(String courseId, String studentId);
+  Future<List<StudentCourseEntity>> getAllCoursesByStudent(String token);
 
   Future<bool> isEnrolled(String courseId, String studentId);
 }

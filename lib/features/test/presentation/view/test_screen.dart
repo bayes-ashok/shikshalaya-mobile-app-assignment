@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shikshalaya/core/common/bottom_nav.dart';
+import 'package:shikshalaya/features/test/presentation/view/quiz_screen.dart';
+
+import '../../../../app/di/di.dart';
+import '../view_model/bloc/quiz_bloc.dart';
+import '../widget/quiz_set_card.dart';
 
 class TestScreen extends StatelessWidget {
   const TestScreen({super.key});
@@ -76,46 +82,52 @@ class TestScreen extends StatelessWidget {
                 ),
               ),
 
-              // Quiz List Section
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Quizzes",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Add navigation to see all
+                padding: const EdgeInsets.only(top: 8.0), // Small padding to avoid overlap
+                child: BlocProvider(
+                  create: (context) => getIt<QuizBloc>()..add(LoadQuizSets()),
+                  child: BlocListener<QuizBloc, QuizState>(
+                    listener: (context, state) {
+                      if (state.isSuccess && state.questions != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => QuizPage(questions: state.questions!),
+                          ),
+                        );
+                      }
+                    },
+                    child: BlocBuilder<QuizBloc, QuizState>(
+                      builder: (context, state) {
+                        if (state.isLoading) {
+                          return const Center(child: CircularProgressIndicator());
+                        } else if (state.isSuccess && state.quizSets != null) {
+                          return ListView.builder(
+                            padding: const EdgeInsets.all(16), // Ensures spacing from edges
+                            itemCount: state.quizSets!.length,
+                            itemBuilder: (context, index) {
+                              return QuizSetCard(
+                                quizSet: state.quizSets![index],
+                                onTap: () {
+                                  context.read<QuizBloc>().add(
+                                    LoadQuestions(quizSetId: state.quizSets![index].id),
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        } else {
+                          return const Center(
+                            child: Text(
+                              "No quizzes available",
+                              style: TextStyle(color: Colors.black54, fontSize: 18),
+                            ),
+                          );
+                        }
                       },
-                      child: Text(
-                        "See All",
-                        style: TextStyle(color: Colors.blueAccent),
-                      ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              // Use ListView to allow scrolling, one card per row horizontally
-              ListView(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  QuizCard(
-                      title: "1st Paper | SECTION OFFICER – G.K.", questions: 50),
-                  QuizCard(
-                      title: "1st Paper | SECTION OFFICER – I.Q.", questions: 30),
-                  QuizCard(
-                      title: "1st Paper | SECTION OFFICER – English",
-                      questions: 20),
-                  QuizCard(
-                      title: "1st Paper | Nayab Subba – G.K.", questions: 30),
-                ],
               ),
             ],
           ),

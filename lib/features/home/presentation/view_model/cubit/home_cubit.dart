@@ -10,7 +10,6 @@ import '../../../../course/presentation/view_model/bloc/course_bloc.dart';
 import '../../../../payment/presentation/view_model/payment_bloc.dart';
 import 'home_state.dart';
 
-
 class HomeCubit extends Cubit<HomeState> {
   final GetAllCoursesUseCase getAllCoursesUseCase;
 
@@ -21,12 +20,13 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void fetchCourses() async {
-    print("fetched");
+    print("Fetching courses...");
     emit(state.copyWith(isLoading: true));
+
     final result = await getAllCoursesUseCase();
     result.fold(
           (failure) {
-        print(failure);
+        print("Fetch failed: $failure");
         emit(state.copyWith(
           isLoading: false,
           isSuccess: false,
@@ -34,56 +34,56 @@ class HomeCubit extends Cubit<HomeState> {
         ));
       },
           (courses) {
-        print("courses $courses");
+        print("Fetched courses: ${courses.length}");
 
         emit(state.copyWith(
           isLoading: false,
           isSuccess: true,
           courses: courses,
+          filteredCourses: courses, // Ensure filtered list is initialized
           errorMessage: null,
         ));
       },
     );
   }
 
-
-  // Keep the onTabTapped method as provided.
   void onTabTapped(int index) {
-    print(index);
+    print("Tab selected: $index");
     emit(state.copyWith(selectedIndex: index));
   }
 
-  // Optional: Include logout functionality if needed.
-  void logout(BuildContext context) {
-    Future.delayed(const Duration(seconds: 2), () async {
-      if (context.mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                BlocProvider.value(
-                  value: getIt<LoginBloc>(),
-                  child: LoginView(),
-                ),
-          ),
-        );
-      }
-    });
-  }
+
 
   void navigateToCourseDetail(BuildContext context, String courseId) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            MultiBlocProvider(
-              providers: [
-                BlocProvider.value(value: getIt<CourseBloc>()),
-                BlocProvider.value(value: getIt<PaymentBloc>()),
-              ],
-              child: CourseDetailPage(courseId: courseId),
-            ),
+        builder: (context) => MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: getIt<CourseBloc>()),
+            BlocProvider.value(value: getIt<PaymentBloc>()),
+          ],
+          child: CourseDetailPage(courseId: courseId),
+        ),
       ),
     );
+  }
+
+  void filterCoursesByLevel(String level) {
+    print("Filtering by level: $level");
+    emit(state.copyWith(selectedCategory: level));
+
+    if (level == 'all') {
+      emit(state.copyWith(filteredCourses: state.courses));
+    } else {
+      final filtered = state.courses.where((course) {
+        print("Checking course: ${course.title}, Level: ${course.level}");
+        return course.level == level;
+      }).toList();
+
+      print("Filtered courses: ${filtered.length}");
+
+      emit(state.copyWith(filteredCourses: filtered));
+    }
   }
 }

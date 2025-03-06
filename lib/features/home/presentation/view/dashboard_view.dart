@@ -1,21 +1,133 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shikshalaya/features/course/presentation/view/course_detail_page.dart';
-import 'package:shikshalaya/features/course/presentation/view_model/bloc/course_bloc.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../app/di/di.dart';
+import '../../../auth/presentation/view/login_view.dart';
+import '../../../auth/presentation/view_model/login/login_bloc.dart';
 import '../view_model/cubit/home_cubit.dart';
 import '../view_model/cubit/home_state.dart';
 
-class DashboardView extends StatelessWidget {
+class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
+
+  @override
+  State<DashboardView> createState() => _DashboardViewState();
+}
+
+class _DashboardViewState extends State<DashboardView> {
+  AccelerometerEvent? _accelerometerEvent;
+  final _streamSubscriptions = <StreamSubscription<dynamic>>[];
+  String _shakeMessage = "Shake your phone!";
+  final double _shakeThreshold =
+      20.0; // Adjust this value to detect shakes properly
+
+  @override
+  void initState() {
+    super.initState();
+
+    _streamSubscriptions.add(
+      accelerometerEventStream().listen(
+        (AccelerometerEvent event) {
+          setState(() {
+            _accelerometerEvent = event;
+            _detectShake(event);
+          });
+        },
+        onError: (e) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return const AlertDialog(
+                  title: Text("Sensor Not Found"),
+                  content: Text(
+                      "It seems that your device doesn't support the Accelerometer Sensor"),
+                );
+              });
+        },
+        cancelOnError: true,
+      ),
+    );
+  }
+
+  void _detectShake(AccelerometerEvent event) async {
+    double magnitude = sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
+    print("Shake detected with magnitude: $magnitude");
+
+    if (magnitude > _shakeThreshold) {
+      print("Shake detected!");
+
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Clear user session data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+
+      // Wait to simulate processing delay
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Ensure the widget is still active
+      if (!mounted) return;
+
+      // Close the dialog before navigating
+      if (Navigator.canPop(context)) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+
+      // Ensure navigation happens safely
+      Future.microtask(() {
+        if (mounted) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BlocProvider.value(
+                value: getIt<LoginBloc>(),
+                child: const LoginView(),
+              ),
+            ),
+                (route) => false, // Remove all previous screens
+          );
+        }
+      });
+
+      // Reset the shake message after delay
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _shakeMessage = "Shake your phone!";
+          });
+        }
+      });
+    }
+  }
+
+
+
+  @override
+  void dispose() {
+    for (final subscription in _streamSubscriptions) {
+      subscription.cancel();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Home"),
-        backgroundColor: Colors.lightBlue[50],
-        elevation: 0,
+        title: const Text("Dashboard"),
+        backgroundColor: Colors.white,
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.1),
         centerTitle: true,
         actions: [
           IconButton(
@@ -28,30 +140,48 @@ class DashboardView extends StatelessWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFe1f5fe),
-              Color(0xFFb3e5fc)
-            ], // Light blue gradient
+              Color(0xFFf0faff),
+              Color(0xFFe6f7ff),
+            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSearchBar(),
-              const SizedBox(height: 16),
-              _buildFilterChips(),
-              const SizedBox(height: 16),
-              const Text(
-                'Explore Courses',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Ensures balance
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSearchBar(),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildFilterChips(context),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Explore Courses',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              _buildCourseGrid(context),
-            ],
-          ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0), // Added padding
+                child: _buildCourseGrid(context),
+              ),
+            ),
+            const SizedBox(height: 20), // Add space at bottom
+          ],
         ),
       ),
     );
@@ -68,40 +198,80 @@ class DashboardView extends StatelessWidget {
         ),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-            vertical: 15, horizontal: 20),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
       ),
     );
   }
 
-  Widget _buildFilterChips() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        FilterChip(
-          label: const Text('Loksewa', style: TextStyle(
-              fontFamily: 'Roboto Bold')),
-          onSelected: (_) {},
-          backgroundColor: Colors.deepPurple.shade50,
-          selectedColor: Colors.deepPurpleAccent,
-          selected: false,
+  Widget _buildFilterChips(BuildContext context) {
+    final homeCubit = context.read<HomeCubit>();
+
+    return BlocBuilder<HomeCubit, HomeState>(
+      builder: (context, state) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildFilterChip(
+                    label: 'All',
+                    isSelected: state.selectedCategory == 'all',
+                    onSelected: () => homeCubit.filterCoursesByLevel('all'),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    label: 'Officer',
+                    isSelected: state.selectedCategory == 'section-officer',
+                    onSelected: () =>
+                        homeCubit.filterCoursesByLevel('section-officer'),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    label: 'Nayab Subba',
+                    isSelected: state.selectedCategory == 'nayab-subba',
+                    onSelected: () => homeCubit.filterCoursesByLevel('nayab-subba'),
+                  ),
+                  const SizedBox(width: 8),
+                  _buildFilterChip(
+                    label: 'Kharidar',
+                    isSelected: state.selectedCategory == 'kharidar',
+                    onSelected: () => homeCubit.filterCoursesByLevel('kharidar'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onSelected,
+  }) {
+    return FilterChip(
+      label: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'Roboto Bold',
+          color: isSelected
+              ? Colors.white
+              : Colors.black, // Change text color when selected
         ),
-        FilterChip(
-          label: const Text('Bridge Course', style: TextStyle(
-              fontFamily: 'Roboto Bold')),
-          onSelected: (_) {},
-          backgroundColor: Colors.deepPurple.shade50,
-          selectedColor: Colors.deepPurpleAccent,
-          selected: false,
-        ),
-        FilterChip(
-          label: const Text('CEE', style: TextStyle(fontFamily: 'Roboto Bold')),
-          onSelected: (_) {},
-          backgroundColor: Colors.deepPurple.shade50,
-          selectedColor: Colors.deepPurpleAccent,
-          selected: false,
-        ),
-      ],
+      ),
+      selected: isSelected,
+      onSelected: (_) => onSelected(),
+      backgroundColor: Colors.white,
+      selectedColor: Colors.deepPurpleAccent,
+      checkmarkColor: isSelected
+          ? Colors.white
+          : null, // Make checkmark white when selected
     );
   }
 
@@ -109,42 +279,82 @@ class DashboardView extends StatelessWidget {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         if (state.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return Container(
+            width: double.infinity,
+            height: MediaQuery.of(context).size.height * 0.6,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFf0faff),
+                  Color(0xFFe6f7ff),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: const CircularProgressIndicator(),
+          );
         }
+
         if (!state.isSuccess) {
           return Center(
-              child: Text(state.errorMessage ?? "Failed to load courses"));
+            child: Text(state.errorMessage ?? "Failed to load courses"),
+          );
         }
-        if (state.courses.isEmpty) {
-          return const Center(child: Text("No courses available"));
+
+        if (state.filteredCourses.isEmpty) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.6,
+            alignment: Alignment.center,
+            child: const Text("No courses available"),
+          );
         }
-        return GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: MediaQuery
-                .of(context)
-                .orientation == Orientation.portrait ? 2 : 3,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: MediaQuery
-                .of(context)
-                .orientation == Orientation.portrait ? 3 / 4 : 20 / 17,
+
+        return Container(
+          // Ensure grid inherits background
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFf0faff),
+                Color(0xFFe6f7ff),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-          itemCount: state.courses.length,
-          itemBuilder: (context, index) {
-            final course = state.courses[index];
-            return GestureDetector(
-              onTap: () {
-                context.read<HomeCubit>().navigateToCourseDetail(context, course.courseId);
-              },
-              child: buildCourseCard(
-                title: course.title,
-                subtitle: course.instructorName ?? "Unknown Instructor",
-                imagePath: course.image,
-              ),
-            );
-          },
+          child: GridView.builder(
+            physics: const BouncingScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount:
+                  MediaQuery.of(context).orientation == Orientation.portrait
+                      ? 2
+                      : 3,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio:
+                  MediaQuery.of(context).orientation == Orientation.portrait
+                      ? 3 / 4
+                      : 20 / 17,
+            ),
+            itemCount: state.filteredCourses.length,
+            itemBuilder: (context, index) {
+              final course = state.filteredCourses[index];
+              return GestureDetector(
+                onTap: () {
+                  context
+                      .read<HomeCubit>()
+                      .navigateToCourseDetail(context, course.courseId);
+                },
+                child: buildCourseCard(
+                  title: course.title,
+                  subtitle: course.instructorName ?? "Unknown Instructor",
+                  imagePath: course.image,
+                ),
+              );
+            },
+          ),
         );
       },
     );
@@ -155,65 +365,86 @@ class DashboardView extends StatelessWidget {
     required String subtitle,
     required String imagePath,
   }) {
-    return Card(
-      elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image Section
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(12),
-              topRight: Radius.circular(12),
-            ),
-            child: Stack(
-              children: [
-                Image.network(
+    String formattedTitle =
+    title.length > 50 ? "${title.substring(0, 47)}.." : title;
+
+    bool isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    double cardHeight = isPortrait ? 250 : 100; // Adjust card height for landscape
+    double imageHeight = isPortrait ? 140 : 110; // Maintain aspect ratio
+
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFf0faff),
+            Color(0xFFe6f7ff),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Card(
+        elevation: 6,
+        shadowColor: Colors.black.withOpacity(0.2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        color: Colors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Section with Full Visibility
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+              child: AspectRatio(
+                aspectRatio: 16 / 9, // Maintain image's original aspect ratio
+                child: Image.network(
                   imagePath,
-                  height: 130,
                   width: double.infinity,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain, // Ensure full visibility without cropping
                 ),
-                Container(
-                  height: 130,
-                  width: double.infinity,
-                  color: Colors.black.withOpacity(0.4),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 6),
-          // Title Section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6.0),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontFamily: 'OpenSans Bold',
-                fontSize: 14,
-                color: Colors.black,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const Spacer(),
-          // Subtitle Section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
-            child: Text(
-              subtitle,
-              maxLines: 1,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontFamily: 'OpenSans Medium',
-                fontSize: 12,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+
+            // Title Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                formattedTitle,
+                style: const TextStyle(
+                  fontFamily: 'OpenSans Bold',
+                  fontSize: 14,
+                  color: Colors.black,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 4), // Reduce space
+
+            // Instructor Name Section (Tightly Aligned)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'OpenSans Medium',
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+
 }

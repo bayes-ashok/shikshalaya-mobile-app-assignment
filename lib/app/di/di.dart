@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shikshalaya/app/shared_prefs/token_shared_prefs.dart';
 import 'package:shikshalaya/core/network/api_service.dart';
@@ -11,22 +12,35 @@ import 'package:shikshalaya/features/auth/domain/use_case/login_usecase.dart';
 import 'package:shikshalaya/features/auth/domain/use_case/register_user_usecase.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/login/login_bloc.dart';
 import 'package:shikshalaya/features/auth/presentation/view_model/signup/register_bloc.dart';
+import 'package:shikshalaya/features/course/domain/use_case/get_student_course_usecase.dart';
 import 'package:shikshalaya/features/home/presentation/view_model/cubit/home_cubit.dart';
+import 'package:shikshalaya/features/news/data/repository/news_repository.dart';
 import 'package:shikshalaya/features/payment/data/data_source/remote_data_source/payment_remote_data_source.dart';
 import 'package:shikshalaya/features/payment/data/repository/payment_remote_repository.dart';
 import 'package:shikshalaya/features/test/data/repository/quiz_remote_repository.dart';
 import 'package:shikshalaya/features/test/domain/repository/quiz_repository.dart';
 import 'package:shikshalaya/features/test/presentation/view_model/bloc/quiz_bloc.dart';
+import 'package:shikshalaya/features/user_profile/data/data_source/remote_data_source/user_profile_remote_datasource.dart';
+import 'package:shikshalaya/features/user_profile/data/repository/user_profile_repository_impl.dart';
+import 'package:shikshalaya/features/user_profile/domain/repository/user_profile_repository.dart';
+import 'package:shikshalaya/features/user_profile/domain/use_case/update_user_profile_usecase.dart';
 import '../../features/course/data/data_source/remote_datasource/course_remote_datasource.dart';
 import '../../features/course/data/repository/course_remote_repository.dart';
 import '../../features/course/domain/repository/course_repository.dart';
 import '../../features/course/domain/use_case/course_usecase.dart';
 import '../../features/course/presentation/view_model/bloc/course_bloc.dart';
+import '../../features/news/data/data_source/remote_datasource/news_remote_datasource.dart';
+import '../../features/news/domain/repository/news_repository.dart';
+import '../../features/news/domain/use_case/fetch_news_usecase.dart';
+import '../../features/news/presentation/view_model/news_bloc.dart';
 import '../../features/payment/domain/use_case/on_payment_complete.dart';
 import '../../features/payment/presentation/view_model/payment_bloc.dart';
 import '../../features/test/data/data_source/remote_datasource/quiz_remote_data_source.dart';
 import '../../features/test/domain/use_case/get_questions_usecase.dart';
 import '../../features/test/domain/use_case/get_quiz_sets_usecase.dart';
+import '../../features/user_profile/data/data_source/user_profile_datasource.dart';
+import '../../features/user_profile/domain/use_case/get_current_user_usecase.dart';
+import '../../features/user_profile/presentation/view_model/settings_bloc.dart';
 
 
 final getIt = GetIt.instance;
@@ -41,6 +55,8 @@ Future<void> initDependencies() async {
   await _initRegisterDependencies();
   await _initLoginDependencies();
   await _initTestDependencies();
+  await _initNewsDependencies();
+  await _initSettingsDependencies();
 
 
   // await _initSplashScreenDependencies();
@@ -120,6 +136,10 @@ _initHomeDependencies() async {
         () => GetAllCoursesUseCase(repository: getIt<CourseRepository>()),
   );
 
+  getIt.registerLazySingleton<GetStudentCoursesUseCase>(
+        () => GetStudentCoursesUseCase( getIt<CourseRepository>(),getIt<TokenSharedPrefs>()),
+  );
+
   getIt.registerLazySingleton<GetCourseByIdUseCase>(
         () => GetCourseByIdUseCase(getIt<CourseRepository>(),
         getIt<TokenSharedPrefs>()),
@@ -135,12 +155,14 @@ _initHomeDependencies() async {
   getIt.registerFactory<HomeCubit>(
         () => HomeCubit(getAllCoursesUseCase: getIt<GetAllCoursesUseCase>()),
   );
+  
+  
 
   // Register CourseBloc with its dependencies
   getIt.registerFactory<CourseBloc>(
         () => CourseBloc(getCourseByIdUseCase: getIt<GetCourseByIdUseCase>(),
         isEnrolledUseCase: getIt<IsEnrolledUseCase>(),
-          paymentBloc: getIt<PaymentBloc>(),
+          paymentBloc: getIt<PaymentBloc>(), getStudentCoursesUseCase: getIt<GetStudentCoursesUseCase>(),
 
         ),
   );
@@ -217,6 +239,59 @@ _initTestDependencies() {
         QuizBloc(
           getQuizSetsUseCase: getIt<GetQuizSetsUseCase>(),
           getQuestionsUseCase: getIt<GetQuestionsUseCase>(),
+        ),
+  );
+}
+
+_initNewsDependencies() {
+  // ✅ Register Remote Data Source
+  getIt.registerLazySingleton<NewsRemoteDataSource>(
+        () => NewsRemoteDataSource(getIt<Dio>()),
+  );
+
+  // ✅ Register Repository
+  getIt.registerLazySingleton<NewsRepository>(
+        () => NewsRepositoryImpl(getIt<NewsRemoteDataSource>()),
+  );
+
+  // ✅ Register Use Case
+  getIt.registerLazySingleton<FetchNewsUseCase>(
+        () => FetchNewsUseCase(getIt<NewsRepository>()),
+  );
+
+  // ✅ Register BLoC
+  getIt.registerFactory<NewsBloc>(
+        () => NewsBloc(fetchNewsUseCase: getIt<FetchNewsUseCase>()),
+  );
+}
+
+_initSettingsDependencies() {
+
+  // ✅ Register Remote Data Source
+  getIt.registerLazySingleton<UserProfileRemoteDataSourceImpl>(
+        () => UserProfileRemoteDataSourceImpl(dio: getIt<Dio>()),
+  );
+
+  // ✅ Register Repository
+  getIt.registerLazySingleton<UserProfileRepositoryImpl>(
+        () => UserProfileRepositoryImpl(remoteDataSource: getIt<UserProfileRemoteDataSourceImpl>()),
+  );
+
+  // ✅ Register Use Case
+  getIt.registerLazySingleton<GetCurrentUserUseCase>(
+        () => GetCurrentUserUseCase(getIt<UserProfileRepositoryImpl>(),
+            getIt<TokenSharedPrefs>()),
+  );
+
+  // ✅ Register Use Case
+  getIt.registerLazySingleton<UpdateUserProfileUseCase>(
+        () => UpdateUserProfileUseCase(getIt<UserProfileRepositoryImpl>(),
+        getIt<TokenSharedPrefs>()),
+  );
+
+  getIt.registerLazySingleton<SettingsBloc>(
+        () => SettingsBloc(getCurrentUserUseCase: getIt<GetCurrentUserUseCase>(),
+          updateUserProfileUseCase: getIt<UpdateUserProfileUseCase>(),
         ),
   );
 }

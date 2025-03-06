@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:shikshalaya/features/course/domain/entity/course_entity.dart';
 import 'package:shikshalaya/features/payment/data/data_source/payment_data_source.dart';
 
+import '../../../../../app/constants/api_endpoints.dart';
+
 class PaymentRemoteDataSource implements IPayment{
   final Dio _dio;
 
@@ -14,7 +16,7 @@ class PaymentRemoteDataSource implements IPayment{
 
     try {
       final authResponse = await _dio.get(
-        "http://10.0.2.2:8000/auth/check-auth",
+        ApiEndpoints.authCheck,
         options: Options(headers: {"Authorization": "Bearer $token"}),
       );
 
@@ -26,7 +28,7 @@ class PaymentRemoteDataSource implements IPayment{
           print("Authenticated Student ID: $studentId");
 
           final enrollResponse = await _dio.post(
-            "http://10.0.2.2:8000/student/courses-bought/enroll",
+            ApiEndpoints.enroll,
             data: {
               "studentId": studentId,
               "courseId": course.courseId,

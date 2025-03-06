@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:shikshalaya/features/course/domain/entity/student_course_entity.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../domain/entity/course_entity.dart';
@@ -35,9 +36,16 @@ class CourseRepository implements ICourseRepository {
   }
 
   @override
-  Future<Either<Failure, void>> enrollStudentInCourse(String courseId, String studentId) {
-    // TODO: implement enrollStudentInCourse
-    throw UnimplementedError();
+  Future<Either<Failure, List<StudentCourseEntity>>> getCourseByStudent(String token) async{
+    try {
+      final courses = await _courseRemoteDataSource.getAllCoursesByStudent(token);
+      print("courses: $courses");
+      return Right(courses);
+    } catch (e, stackTrace) {
+      print("Error encountered: $e");
+      print("Stack trace: $stackTrace");
+      return Left(ApiFailure(message: e.toString()));
+    }
   }
 
   @override
