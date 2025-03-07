@@ -4,20 +4,22 @@ Sikshyalaya is a **Loksewa exam preparation mobile application** that primarily 
 
 ## **App Screenshots**  
 
-![Sikshyalaya Screenshots](app_screensort/1.png)  
-![Sikshyalaya Screenshots](app_screensort/2.png)  
-![Sikshyalaya Screenshots](app_screensort/3.png)  
-![Sikshyalaya Screenshots](app_screensort/4.png)  
-![Sikshyalaya Screenshots](app_screensort/5.png)  
-![Sikshyalaya Screenshots](app_screensort/6.png)  
-![Sikshyalaya Screenshots](app_screensort/7.png)  
-![Sikshyalaya Screenshots](app_screensort/8.png)  
-![Sikshyalaya Screenshots](app_screensort/9.png)  
-![Sikshyalaya Screenshots](app_screensort/10.png)  
-![Sikshyalaya Screenshots](app_screensort/11.png)  
-![Sikshyalaya Screenshots](app_screensort/12.png)  
-![Sikshyalaya Screenshots](app_screensort/13.png)  
-![Sikshyalaya Screenshots](app_screensort/14.png)  
-![Sikshyalaya Screenshots](app_screensort/15.png)  
-![Sikshyalaya Screenshots](app_screensort/16.png)  
-![Sikshyalaya Screenshots](app_screensort/17.png)  
+<p align="center">
+  <img src="app_screensort/1.png" width="250">
+  <img src="app_screensort/2.png" width="250">
+  <img src="app_screensort/3.png" width="250">
+  <img src="app_screensort/4.png" width="250">
+  <img src="app_screensort/5.png" width="250">
+  <img src="app_screensort/6.png" width="250">
+  <img src="app_screensort/7.png" width="250">
+  <img src="app_screensort/8.png" width="250">
+  <img src="app_screensort/9.png" width="250">
+  <img src="app_screensort/10.png" width="250">
+  <img src="app_screensort/11.png" width="250">
+  <img src="app_screensort/12.png" width="250">
+  <img src="app_screensort/13.png" width="250">
+  <img src="app_screensort/14.png" width="250">
+  <img src="app_screensort/15.png" width="250">
+  <img src="app_screensort/16.png" width="250">
+  <img src="app_screensort/17.png" width="250">
+</p>
